@@ -1,5 +1,6 @@
-# This file simulates the randomly selection of the server
-# but there is no power of two choices
+# This file simulates the randomly selection of the server.
+# The one choice and two choices are both implemented
+# in this file that runs Simulator1 and Simulator2.
 from __future__ import division
 import math
 #import matplotlib.pyplot as plt

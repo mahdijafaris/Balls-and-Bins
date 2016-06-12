@@ -11,7 +11,8 @@ from multiprocessing import Pool
 import numpy as np
 import time
 from BallsBins.Simulator1 import Simulator1
-from BallsBins.Simulator2 import Simulator2
+#from BallsBins.Simulator2 import Simulator2
+from BallsBins.Simulator2 import Simulator2_lowmem
 
 
 
@@ -39,7 +40,7 @@ num_of_runs = 40
 #min_srv_num = 500
 #max_srv_num = 1000000
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
-srv_range = [500, 1000, 2000, 5000,7000, 10000, 20000, 50000]
+srv_range = [50000]
 # Cache size of each server (expressed in number of files)
 cache_sz = 100
 # Cache increment step size
@@ -84,7 +85,7 @@ if __name__ == '__main__':
             tmpavgcst = 0
             params = [(srv_num, cache_sz, file_num) for itr in range(num_of_runs)]
             print(params)
-            rslts = pool.map(Simulator2, params)
+            rslts = pool.map(Simulator2_lowmem, params)
 #            rslts = map(Simulator2, params)
             #rslts = Simulator2((200,1,20))
             for rslt in rslts:

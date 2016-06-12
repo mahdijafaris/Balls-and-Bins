@@ -37,8 +37,13 @@ print(result)
 
 #result = np.array(rslt)
 
-line_maxload, = plt.plot(result[:,0], result[:,1], label='Maximum Load')
-line_avgCost, = plt.plot(result[:,0], result[:,2], label='Average Cost')
+
+#line_maxload, = plt.plot(result[:,0], result[:,1], label='Maximum Load')
+#line_avgCost, = plt.plot(result[:,0], result[:,2], label='Average Cost')
+line_maxload, = plt.plot(result[:,0], result[:,1], 'b', label='Maximum Load')
+plt.plot(result[:,0], result[:,1], 'ko')
+line_avgCost, = plt.plot(result[:,0], result[:,2], 'r', label='Average Cost')
+plt.plot(result[:,0], result[:,2], 'k^')
 #line_maxload.set_label('Label via method')
 plt.legend()
 plt.xlabel('Cache size in each server (# of files)')

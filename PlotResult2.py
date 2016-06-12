@@ -1,3 +1,4 @@
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
@@ -38,9 +39,16 @@ print(result)
 
 #result = np.array(rslt)
 
-line_maxload, = plt.plot(result[:,0], result[:,1], label='Maximum Load')
-line_avgCost, = plt.plot(result[:,0], result[:,2], label='Average Cost')
+#for i in range(result.shape[0]):
+#    result[i,0] = math.log(result[i,0])
+    #result[i,2] = math.log(result[i,2])
+
+line_maxload, = plt.plot(result[:,0], result[:,1], 'b', label='Maximum Load')
+plt.plot(result[:,0], result[:,1], 'ko')
+line_avgCost, = plt.plot(result[:,0], result[:,2], 'r', label='Average Cost')
+plt.plot(result[:,0], result[:,2], 'k^')
 #line_maxload.set_label('Label via method')
+#plt.xscale('log')
 plt.legend()
 plt.xlabel('Number of servers')
 plt.title('Simulator: {}. # of files = {}, cache size = {}, # of iterations ={}'.format(simulator,file_num,cache_cz,num_of_runs))

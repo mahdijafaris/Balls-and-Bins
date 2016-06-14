@@ -32,7 +32,7 @@ from BallsBins.Simulator2 import Simulator2
 simulator = 'two choice'
 
 # Base part of the output file name
-base_out_filename = 'rslt'
+base_out_filename = 'CacheSzVar'
 # Pool size for parallel processing
 pool_size = 2
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
@@ -47,6 +47,10 @@ cache_step_sz = 10
 file_num = 50
 # The list of cache sizes that will be used in the simulation
 cache_range = [1,2,3,4,5,6,7,8,9] + range(10,file_num,cache_step_sz)
+# The graph structure of the network
+# It can be: 'RGG' for random geometric graph, and
+# 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
+graph_type = 'Lattice'
 
 #--------------------------------------------------------------------
 
@@ -66,7 +70,7 @@ if __name__ == '__main__':
             i = i + 1
             tmpmxld = 0
             tmpavgcst = 0
-            params = [(srv_num, cache_sz, file_num) for itr in range(num_of_runs)]
+            params = [(srv_num, cache_sz, file_num, graph_type) for itr in range(num_of_runs)]
             print(params)
             rslts = pool.map(Simulator1, params)
 #            rslts = map(Simulator1, params)
@@ -90,7 +94,7 @@ if __name__ == '__main__':
             i = i + 1
             tmpmxld = 0
             tmpavgcst = 0
-            params = [(srv_num, cache_sz, file_num) for itr in range(num_of_runs)]
+            params = [(srv_num, cache_sz, file_num, graph_type) for itr in range(num_of_runs)]
             print(params)
             rslts = pool.map(Simulator2, params)
 #            rslts = map(Simulator2, params)
@@ -110,9 +114,9 @@ if __name__ == '__main__':
     print("The runtime is {}".format(t_end-t_start))
 
     if simulator == 'one choice':
-        sio.savemat('one_choice_'+'sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs), {'maxload':rslt_maxload,'avgcost':rslt_avgcost})
+        sio.savemat(base_out_filename+'_one_choice_'+'sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs), {'maxload':rslt_maxload,'avgcost':rslt_avgcost})
     elif simulator == 'two choice':
-        sio.savemat('two_choice_'+'sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs), {'maxload':rslt_maxload,'avgcost':rslt_avgcost})
+        sio.savemat(base_out_filename+'_two_choice_'+'sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs), {'maxload':rslt_maxload,'avgcost':rslt_avgcost})
 
 #    if simulator == 'one choice':
 #        np.savetxt(base_out_filename+'_sim1_'+'sn={}_fn={}_itr={}.txt'.format(srv_num,file_num,num_of_runs), result, delimiter=',')

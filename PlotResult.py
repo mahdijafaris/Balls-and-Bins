@@ -27,10 +27,10 @@ with open('output.csv','rb') as f:
 #result = np.array([])
 if simulator == 'one choice':
     #with open('one_choice_sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs),'rb') as f:
-    mat_contents = sio.loadmat('one_choice_sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs))
+    mat_contents = sio.loadmat('CacheSzVar_one_choice_sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs))
 elif simulator == 'two choice':
     #with open('two_choice_sn={}_fn={}_itr={}.txt'.format(srv_num,file_num,num_of_runs),'rb') as f:
-    mat_contents = sio.loadmat('two_choice_sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs))
+    mat_contents = sio.loadmat('CacheSzVar_two_choice_sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs))
 
 
 rslt_maxload = mat_contents['maxload']
@@ -47,8 +47,10 @@ print(avg_avgcost)
 #line_maxload, = plt.plot(result[:,0], result[:,1], label='Maximum Load')
 #line_avgCost, = plt.plot(result[:,0], result[:,2], label='Average Cost')
 line_maxload, = plt.plot(rslt_maxload[:,0], avg_maxload, 'b', label='Maximum Load')
+plt.plot(rslt_maxload[:,0], avg_maxload, 'ko')
 #plt.plot(result[:,0], result[:,1], 'ko')
 line_avgCost, = plt.plot(rslt_avgcost[:,0], avg_avgcost, 'r', label='Average Cost')
+plt.plot(rslt_avgcost[:,0], avg_avgcost, 'k^')
 #plt.plot(result[:,0], result[:,2], 'k^')
 #line_maxload.set_label('Label via method')
 plt.legend()

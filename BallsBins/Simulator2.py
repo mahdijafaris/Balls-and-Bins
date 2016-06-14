@@ -11,6 +11,7 @@ import numpy as np
 #import string
 #from BallsBins import *
 from BallsBins.Server import Server
+from BallsBins.Graph import Gen2DLattice
 
 #--------------------------------------------------------------------
 log = math.log
@@ -22,21 +23,25 @@ def Simulator2(params):
     # cache_sz: Cache size of each server (expressed in number of files)
     # file_num: Total number of files in the system
 
-    srv_num, cache_sz, file_num = params
+    srv_num, cache_sz, file_num, graph_type = params
 
-    rgg_radius = sqrt(5/4*log(srv_num))/sqrt(srv_num)
+    if graph_type == 'RGG': # if the graph is random geometric graph
+        rgg_radius = sqrt(5/4*log(srv_num))/sqrt(srv_num)
+        # Generate a random geometric graph.
+        #print('------------------------------')
+        print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
+        conctd = False
+        while not conctd:
+            G = nx.random_geometric_graph(srv_num, rgg_radius)
+            conctd = nx.is_connected(G)
 
-    file_index = range(file_num) # index of files; from 0 to file_num
-
-    # Generate a random geometric graph.
-#    print('------------------------------')
-    print('Start generating a random graph with {} nodes...'.format(srv_num))
-    conctd = False
-    while not conctd:
-        G = nx.random_geometric_graph(srv_num, rgg_radius)
-        conctd = nx.is_connected(G)
-
-    print('Succesfully generates a connected graph with {} nodes...'.format(srv_num))
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'Lattice':
+        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
+        G = Gen2DLattice(srv_num)
+        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+    else:
+        print("Error: the graph type is not known!")
     # Draw the graph
     #nx.draw(G)
     #plt.show()
@@ -174,20 +179,25 @@ def Simulator2_lowmem(params):
     # cache_sz: Cache size of each server (expressed in number of files)
     # file_num: Total number of files in the system
 
-    srv_num, cache_sz, file_num = params
+    srv_num, cache_sz, file_num, graph_type = params
 
-    rgg_radius = sqrt(5/4*log(srv_num))/sqrt(srv_num)
+    if graph_type == 'RGG': # if the graph is random geometric graph
+        rgg_radius = sqrt(5/4*log(srv_num))/sqrt(srv_num)
+        # Generate a random geometric graph.
+        #print('------------------------------')
+        print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
+        conctd = False
+        while not conctd:
+            G = nx.random_geometric_graph(srv_num, rgg_radius)
+            conctd = nx.is_connected(G)
 
-    file_index = range(file_num) # index of files; from 0 to file_num
-
-    # Generate a random geometric graph.
-#    print('------------------------------')
-    print('Start generating a random graph with {} nodes...'.format(srv_num))
-    conctd = False
-    while not conctd:
-        G = nx.random_geometric_graph(srv_num, rgg_radius)
-        conctd = nx.is_connected(G)
-    print('Succesfully generates a connected graph with {} nodes...'.format(srv_num))
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'Lattice':
+        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
+        G = Gen2DLattice(srv_num)
+        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+    else:
+        print("Error: the graph type is not known!")
     # Draw the graph
     #nx.draw(G)
     #plt.show()
@@ -230,11 +240,11 @@ def Simulator2_lowmem(params):
         #print(i)
         incoming_srv = np.random.randint(srv_num) # Random incoming server
         rqstd_file = np.random.randint(file_num) # Random requested file
+        all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
         if incoming_srv in file_sets[rqstd_file]:
             srv0 = incoming_srv
         else:
             # Find the nearest server that has the requested file
-            all_sh_path_len_G = nx.shortest_path_length(G,source=incoming_srv)
             dmin = 2*srv_num # some large number!
             for nd in file_sets[rqstd_file]:
                 #d = nx.shortest_path_length(G, source=incoming_srv, target=nd)

@@ -12,10 +12,10 @@ import scipy.io as sio
 simulator = 'two choice'
 
 #srv_num = 2000
-file_num = 500
+file_num = 2000
 cache_cz = 100
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 8
+num_of_runs = 4
 
 """
 rslt = []

@@ -35,16 +35,16 @@ simulator = 'two choice, low mem'
 # Base part of the output file name
 base_out_filename = 'SrvSzVar'
 # Pool size for parallel processing
-pool_size = 4
+pool_size = 40
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 4
+num_of_runs = 80
 # Number of servers
 #srv_num = 2000
 #min_srv_num = 500
 #max_srv_num = 1000000
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
 #srv_range = [2025, 5041, 7056, 10000, 20164, 50176, 70225, 100489]
-srv_range = [2025, 5041, 7056]
+srv_range = [2025, 5041, 7056, 10000, 20164]
 # Cache size of each server (expressed in number of files)
 cache_sz = 100
 # Cache increment step size
@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
     if simulator == 'one choice':
         sio.savemat(base_out_filename + '_one_choice_' + 'fn={}_cs={}_itr={}.mat'.format(file_num, cache_sz, num_of_runs), {'maxload': rslt_maxload, 'avgcost': rslt_avgcost})
-    elif simulator == 'two choice':
+    elif (simulator == 'two choice') or (simulator == 'two choice, low mem'):
         sio.savemat(base_out_filename + '_two_choice_' + 'fn={}_cs={}_itr={}.mat'.format(file_num, cache_sz, num_of_runs), {'maxload': rslt_maxload, 'avgcost': rslt_avgcost})
 
 #    if simulator == 'one choice':

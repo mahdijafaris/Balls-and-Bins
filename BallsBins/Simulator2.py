@@ -5,6 +5,7 @@
 # the 'low memory' version should be used.
 from __future__ import division
 import math
+import sys
 #import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -42,6 +43,7 @@ def Simulator2(params):
         print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
     else:
         print("Error: the graph type is not known!")
+        sys.exit()
     # Draw the graph
     #nx.draw(G)
     #plt.show()
@@ -198,6 +200,7 @@ def Simulator2_lowmem(params):
         print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
     else:
         print("Error: the graph type is not known!")
+        sys.exit()
     # Draw the graph
     #nx.draw(G)
     #plt.show()

@@ -6,12 +6,15 @@
 # the 'low memory' version should be used.
 from __future__ import division
 import math
+import sys
 #import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 #import string
 #from BallsBins import *
 from BallsBins.Server import Server
+from BallsBins.Graph import Gen2DLattice
+
 
 #--------------------------------------------------------------------
 log = math.log
@@ -42,6 +45,7 @@ def Simulator1(params):
         print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
     else:
         print("Error: the graph type is not known!")
+        sys.exit()
     # Draw the graph
     #nx.draw(G)
     #plt.show()
@@ -128,23 +132,26 @@ def Simulator1_lowmem(params):
     # cache_sz: Cache size of each server (expressed in number of files)
     # file_num: Total number of files in the system
 
-    srv_num, cache_sz, file_num = params
+    srv_num, cache_sz, file_num, graph_type = params
 
-    rgg_radius = sqrt(5/4*log(srv_num))/sqrt(srv_num)
+    if graph_type == 'RGG': # if the graph is random geometric graph
+        rgg_radius = sqrt(5/4*log(srv_num))/sqrt(srv_num)
+        # Generate a random geometric graph.
+        #print('------------------------------')
+        print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
+        conctd = False
+        while not conctd:
+            G = nx.random_geometric_graph(srv_num, rgg_radius)
+            conctd = nx.is_connected(G)
 
-    file_index = range(file_num) # index of files; from 0 to file_num
-    file_sets = [[] for i in range(file_num)] # list of sets of servers containing each file.
-                                              # the outer list is indexed by the files
-
-    # Generate a random geometric graph.
-#    print('------------------------------')
-    print('Start generating a random graph with {} nodes...'.format(srv_num))
-    conctd = False
-    while not conctd:
-        G = nx.random_geometric_graph(srv_num, rgg_radius)
-        conctd = nx.is_connected(G)
-
-    print('Succesfully generates a connected graph with {} nodes...'.format(srv_num))
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'Lattice':
+        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
+        G = Gen2DLattice(srv_num)
+        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+    else:
+        print("Error: the graph type is not known!")
+        sys.exit()
     # Draw the graph
     #nx.draw(G)
     #plt.show()
@@ -156,6 +163,7 @@ def Simulator1_lowmem(params):
     srvs = [Server(i) for i in range(srv_num)]
 
     # List of sets of servers containing each file
+    # the outer list is indexed by the files
     file_sets = [[] for i in range(file_num)]
 
 

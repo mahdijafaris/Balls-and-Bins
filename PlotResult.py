@@ -10,10 +10,10 @@ import csv
 #simulator = 'one choice'
 simulator = 'two choice'
 
-srv_num = 200
+srv_num = 400
 file_num = 50
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 20
+num_of_runs = 36
 
 """
 rslt = []
@@ -42,6 +42,7 @@ print(rslt_avgcost)
 avg_maxload = np.sum(rslt_maxload[:,1:rslt_maxload.shape[1]],axis=1)/num_of_runs
 avg_avgcost = np.sum(rslt_avgcost[:,1:rslt_avgcost.shape[1]],axis=1)/num_of_runs
 
+print(avg_maxload)
 print(avg_avgcost)
 
 #line_maxload, = plt.plot(result[:,0], result[:,1], label='Maximum Load')

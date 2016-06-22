@@ -10,10 +10,10 @@ import csv
 #simulator = 'one choice'
 simulator = 'two choice'
 
-srv_num = 400
-file_num = 50
+srv_num = 2025
+file_num = 2000
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 36
+num_of_runs = 80
 
 """
 rslt = []

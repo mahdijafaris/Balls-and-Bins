@@ -44,16 +44,16 @@ base_out_filename = 'CacheSzVar'
 # Pool size for parallel processing
 pool_size = 4
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 80
+num_of_runs = 4
 # Number of servers
-srv_num = 10000
+srv_num = 1000
 
 # Cache size of each server (expressed in number of files)
 #cache_sz = 2
 # Cache increment step size
 cache_step_sz = 20
 # Total number of files in the system
-file_num = 2000
+file_num = 200
 # The list of cache sizes that will be used in the simulation
 cache_range = range(1,20) + range(20,file_num,cache_step_sz)
 

@@ -13,9 +13,9 @@ simulator = 'two choice'
 
 #srv_num = 2000
 file_num = 2000
-cache_cz = 100
+cache_cz = 1000
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 4
+num_of_runs = 80
 
 """
 rslt = []
@@ -59,7 +59,9 @@ line_avgCost, = plt.plot(rslt_avgcost[:,0], avg_avgcost, 'r', label='Average Cos
 plt.plot(rslt_avgcost[:,0], avg_avgcost, 'k^')
 #line_maxload.set_label('Label via method')
 #plt.xscale('log')
-plt.legend()
+#plt.legend()
+plt.legend(loc=2,
+           bbox_transform=plt.gcf().transFigure)
 plt.xlabel('Number of servers')
 plt.title('Simulator: {}. # of files = {}, cache size = {}, # of iterations ={}'.format(simulator,file_num,cache_cz,num_of_runs))
 plt.show()

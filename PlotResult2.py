@@ -8,12 +8,12 @@ import scipy.io as sio
 # Choose the simulator. It can be the following values:
 # 'one choice'
 # 'two choice'
-#simulator = 'one choice'
-simulator = 'two choice'
+simulator = 'one choice'
+#simulator = 'two choice'
 
 #srv_num = 2000
 file_num = 2000
-cache_cz = 1000
+cache_cz = 10
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
 num_of_runs = 80
 
@@ -60,7 +60,7 @@ plt.plot(rslt_avgcost[:,0], avg_avgcost, 'k^')
 #line_maxload.set_label('Label via method')
 #plt.xscale('log')
 #plt.legend()
-plt.legend(loc=2,
+plt.legend(loc=4,
            bbox_transform=plt.gcf().transFigure)
 plt.xlabel('Number of servers')
 plt.title('Simulator: {}. # of files = {}, cache size = {}, # of iterations ={}'.format(simulator,file_num,cache_cz,num_of_runs))

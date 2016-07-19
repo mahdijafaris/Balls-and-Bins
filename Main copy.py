@@ -30,7 +30,7 @@ simulator = 'one choice'
 base_out_filename = 'output'
 
 # Pool size for parallel processing
-pool_size = 2
+pool_size = 4
 
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
 num_of_runs = 10

@@ -211,7 +211,8 @@ def Simulator2_lowmem(params):
     # Create 'srv_num' servers from the class server
     srvs = [Server(i) for i in range(srv_num)]
 
-    # List of sets of servers containing each file
+    # List of sets of servers containing each file. The list is enumerate by the
+    # file index and for each file we have a list that contains the servers cached that file.
     file_sets = [[] for i in range(file_num)]
 
     # Randomly places cache_sz files in each servers

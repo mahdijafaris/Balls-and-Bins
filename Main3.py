@@ -14,7 +14,7 @@ import time
 #from BallsBins.Simulator1 import Simulator1_lowmem
 #from BallsBins.Simulator2 import Simulator2
 #from BallsBins.Simulator2 import Simulator2_lowmem
-from BallsBins.Simulator3 import Simulator3
+from BallsBins.Simulator3 import Simulator3_torus
 
 
 
@@ -49,7 +49,7 @@ alpha_range = [0, 0.2, 0.4, 0.7, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6), sqrt(8),
 #alpha_range = [50]
 
 # The graph structure of the network
-# It can be: 'RGG' for random geometric graph, and
+# It can be:
 # 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
 graph_type = 'Lattice'
 #graph_type = 'RGG'
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         params = [(srv_num, cache_sz, file_num, graph_type, alpha) for itr in range(num_of_runs)]
         print(params)
 
-        rslts = pool.map(Simulator3, params)
+        rslts = pool.map(Simulator3_torus, params)
 #        rslts = [Simulator3((srv_num, cache_sz, file_num, graph_type, alpha))]
 
         for j, rslt in enumerate(rslts):

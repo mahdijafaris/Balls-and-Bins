@@ -11,12 +11,13 @@ import networkx as nx
 import numpy as np
 from BallsBins.Server import Server
 from BallsBins.Graph import Gen2DLattice
+from BallsBins.Graph import shortest_path_length_torus
 
 #--------------------------------------------------------------------
 log = math.log
 sqrt = math.sqrt
 
-def Simulator3(params):
+def Simulator3_torus(params):
     # Simulation parameters
     # srv_num: Number of servers
     # cache_sz: Cache size of each server (expressed in number of files)
@@ -30,18 +31,7 @@ def Simulator3(params):
         print("Error: The cache size is larger that number of files!")
         sys.exit()
 
-    if graph_type == 'RGG': # if the graph is random geometric graph
-        rgg_radius = sqrt(5/4*log(srv_num))/sqrt(srv_num)
-        # Generate a random geometric graph.
-        #print('------------------------------')
-        print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
-        conctd = False
-        while not conctd:
-            G = nx.random_geometric_graph(srv_num, rgg_radius)
-            conctd = nx.is_connected(G)
-
-        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
-    elif graph_type == 'Lattice':
+    if graph_type == 'Lattice':
         print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
         G = Gen2DLattice(srv_num)
         print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
@@ -94,7 +84,8 @@ def Simulator3(params):
         rqstd_file = np.random.randint(file_num) # Random requested file
 
         # Find the shortest path from requesting nodes to all other nodes
-        all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
+#        all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
+        all_sh_path_len_G = shortest_path_length_torus(srv_num, incoming_srv)
 
         # Find the nearest server that has the requested file
 #        print(file_sets[rqstd_file])

@@ -34,3 +34,25 @@ def Gen2DLattice(size):
         G.add_edge(i,l)
 
     return G
+
+
+# This function return the shortest path from a source node to
+# the rest of torus nodes.
+# The upper left node is labeled by 0 and the lower right by size-1
+# size: is the size of torus and it should be a perfect square.
+def shortest_path_length_torus(size, source):
+    side = sqrt(size)
+    src_r = source // side
+    src_c = source % side
+    shortest_path_length = {}
+    for i in range(size):
+        r = i // side
+        c = i % side
+        shrtplen = abs(src_c-c)+abs(src_r-r)
+        shrtplen = min(shrtplen, abs(src_c-side-c)+abs(src_r-r))
+        shrtplen = min(shrtplen, abs(src_c+side-c)+abs(src_r-r))
+        shrtplen = min(shrtplen, abs(src_c-c)+abs(src_r-side-r))
+        shrtplen = int(min(shrtplen, abs(src_c-c)+abs(src_r+side-r)))
+        shortest_path_length[i] = shrtplen
+
+    return shortest_path_length

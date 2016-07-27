@@ -1,6 +1,7 @@
 import networkx as nx
 import math
 import sys
+import numpy as np
 #import matplotlib.pyplot as plt
 
 sqrt = math.sqrt
@@ -41,18 +42,25 @@ def Gen2DLattice(size):
 # The upper left node is labeled by 0 and the lower right by size-1
 # size: is the size of torus and it should be a perfect square.
 def shortest_path_length_torus(size, source):
-    side = sqrt(size)
+    side = int(sqrt(size))
     src_r = source // side
     src_c = source % side
-    shortest_path_length = {}
-    for i in range(size):
-        r = i // side
-        c = i % side
-        shrtplen = abs(src_c-c)+abs(src_r-r)
-        shrtplen = min(shrtplen, abs(src_c-side-c)+abs(src_r-r))
-        shrtplen = min(shrtplen, abs(src_c+side-c)+abs(src_r-r))
-        shrtplen = min(shrtplen, abs(src_c-c)+abs(src_r-side-r))
-        shrtplen = int(min(shrtplen, abs(src_c-c)+abs(src_r+side-r)))
-        shortest_path_length[i] = shrtplen
+#    shortest_path_length = {}
+#    for i in xrange(size):
+#        r = i // side
+#        c = i % side
+#        shrtplen = min(abs(src_c-c)+abs(src_r-r), abs(src_c-side-c)+abs(src_r-r), abs(src_c+side-c)+abs(src_r-r), abs(src_c-c)+abs(src_r-side-r), abs(src_c-c)+abs(src_r+side-r))
+#        shortest_path_length[i] = shrtplen
+    i = np.arange(size, dtype=np.int32)
+    r = i // side
+    c = i % side
+    tmp = np.column_stack((abs(src_c-c)+abs(src_r-r), abs(src_c-side-c)+abs(src_r-r), abs(src_c+side-c)+abs(src_r-r), abs(src_c-c)+abs(src_r-side-r), abs(src_c-c)+abs(src_r+side-r)))
+#    print(r)
+#    print(c)
+#    print((abs(src_c-c)+abs(src_r-r)).shape)
+    shortest_path_length = np.amin(tmp, axis=1)
+#    print(tmp.shape)
+#    print(tmp)
+#    print(shortest_path_length[1].dtype.name)
 
     return shortest_path_length

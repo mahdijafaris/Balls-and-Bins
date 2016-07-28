@@ -15,9 +15,9 @@ import time
 #import string
 #from BallsBins import *
 #from BallsBins.Server import Server
-from BallsBins.Simulator1 import Simulator1_torus
+from BallsBins.Simulator_Torus import *
 #from BallsBins.Simulator1 import Simulator1_lowmem
-from BallsBins.Simulator2 import Simulator2_torus
+#from BallsBins.Simulator2 import Simulator2_torus
 #from BallsBins.Simulator2 import Simulator2_lowmem
 
 
@@ -73,10 +73,10 @@ if __name__ == '__main__':
         params = [(srv_num, cache_sz, file_num, graph_type) for itr in range(num_of_runs)]
         print(params)
         if simulator == 'one choice':
-            rslts = pool.map(Simulator1_torus, params)
+            rslts = pool.map(simulator1_torus, params)
 #            rslts = map(Simulator1, params)
         elif simulator == 'two choice':
-            rslts = pool.map(Simulator2_torus, params)
+            rslts = pool.map(simulator2_torus, params)
         else:
             print('Error: an invalid simulator!')
             sys.exit()

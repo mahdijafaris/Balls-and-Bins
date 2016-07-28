@@ -14,7 +14,7 @@ import time
 #from BallsBins.Simulator1 import Simulator1_lowmem
 #from BallsBins.Simulator2 import Simulator2
 #from BallsBins.Simulator2 import Simulator2_lowmem
-from BallsBins.Simulator3 import Simulator3_torus
+from BallsBins.Simulator_Torus import *
 
 
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         params = [(srv_num, cache_sz, file_num, graph_type, alpha) for itr in range(num_of_runs)]
         print(params)
 
-        rslts = pool.map(Simulator3_torus, params)
+        rslts = pool.map(simulator3_torus, params)
 #        rslts = [Simulator3((srv_num, cache_sz, file_num, graph_type, alpha))]
 
         for j, rslt in enumerate(rslts):

@@ -34,6 +34,9 @@ def simulator1_torus(params):
 
     srv_num, cache_sz, file_num, graph_type = params
 
+    print('The simulator 1 is starting with parameters:')
+    print('Server Number = {}, File Number = {}, Cache Size = {}, Network Topology = {}'.format(srv_num, file_num,cache_sz,graph_type))
+
     # Check the validity of parameters
     if cache_sz > file_num:
         print("Error: The cache size is larger that number of files!")
@@ -85,7 +88,7 @@ def simulator1_torus(params):
 
     # Main loop of the simulator. We throw n balls requests into the servers.
     # Each request randomly pick a server and a file.
-    print('The simulator 1 is starting...')
+    print('The main core of simulator 1 is starting...')
     total_cost = 0 # Measured in number of hops.
     for i in range(srv_num):
         #print(i)
@@ -136,6 +139,9 @@ def simulator2_torus(params):
     # file_num: Total number of files in the system
 
     srv_num, cache_sz, file_num, graph_type = params
+
+    print('The simulator 2 is starting with parameters:')
+    print('Server Number = {}, File Number = {}, Cache Size = {}, Network Topology = {}'.format(srv_num, file_num,cache_sz,graph_type))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -270,6 +276,9 @@ def simulator3_torus(params):
     # alpha: alpha determines the search space as follows: (1+alpha)NearestNeighborDistance
 
     srv_num, cache_sz, file_num, graph_type, alpha = params
+
+    print('The simulator 3 is starting with parameters:')
+    print('Server Number = {}, File Number = {}, Cache Size = {}, Network Topology = {}'.format(srv_num, file_num,cache_sz,graph_type))
 
     # Check the validity of parameters
     if cache_sz > file_num:

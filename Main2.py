@@ -36,14 +36,14 @@ simulator = 'two choice'
 # Base part of the output file name
 base_out_filename = 'SrvSzVar'
 # Pool size for parallel processing
-pool_size = 4
+pool_size = 2
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 80
+num_of_runs = 4
 
 # Number of servers
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
 #srv_range = [2025, 5041, 7056, 10000, 20164, 50176, 70225, 100489]
-srv_range = [20164]
+srv_range = [625]
 #srv_range = [225, 324, 625, 900, 1225, 1600, 2025, 3025, 4096, 5041]
 
 # Cache size of each server (expressed in number of files)
@@ -52,7 +52,7 @@ cache_sz = 1
 #cache_step_sz = 10
 
 # Total number of files in the system
-file_num = 2000
+file_num = 200
 
 # The graph structure of the network
 # It can be:

@@ -58,6 +58,11 @@ cache_range = range(1,20) + range(20,200,cache_step_sz)
 # 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
 graph_type = 'Lattice'
 
+# The distribution of file placement in nodes' caches
+# It can be:
+# 'Uniform' for uniform placement.
+placement_dist = 'Uniform'
+
 #--------------------------------------------------------------------
 
 
@@ -70,7 +75,7 @@ if __name__ == '__main__':
     rslt_maxload = np.zeros((len(cache_range),1+num_of_runs))
     rslt_avgcost = np.zeros((len(cache_range),1+num_of_runs))
     for i, cache_sz in enumerate(cache_range):
-        params = [(srv_num, cache_sz, file_num, graph_type) for itr in range(num_of_runs)]
+        params = [(srv_num, cache_sz, file_num, graph_type, placement_dist) for itr in range(num_of_runs)]
         print(params)
         if simulator == 'one choice':
             rslts = pool.map(simulator1_torus, params)

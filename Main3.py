@@ -54,6 +54,12 @@ alpha_range = [0, 0.2, 0.4, 0.7, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6), sqrt(8),
 graph_type = 'Lattice'
 #graph_type = 'RGG'
 
+# The distribution of file placement in nodes' caches
+# It can be:
+# 'Uniform' for uniform placement.
+placement_dist = 'Uniform'
+
+
 #--------------------------------------------------------------------
 
 
@@ -66,7 +72,7 @@ if __name__ == '__main__':
     rslt_maxload = np.zeros((len(alpha_range),1+num_of_runs))
     rslt_avgcost = np.zeros((len(alpha_range),1+num_of_runs))
     for i, alpha in enumerate(alpha_range):
-        params = [(srv_num, cache_sz, file_num, graph_type, alpha) for itr in range(num_of_runs)]
+        params = [(srv_num, cache_sz, file_num, graph_type, placement_dist, alpha) for itr in range(num_of_runs)]
         print(params)
 
         rslts = pool.map(simulator3_torus, params)

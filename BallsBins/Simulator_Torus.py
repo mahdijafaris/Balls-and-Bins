@@ -32,10 +32,10 @@ def simulator1_torus(params):
     # cache_sz: Cache size of each server (expressed in number of files)
     # file_num: Total number of files in the system
 
-    srv_num, cache_sz, file_num, graph_type = params
+    srv_num, cache_sz, file_num, graph_type, placement_dist = params
 
     print('The simulator 1 is starting with parameters:')
-    print('Server Number = {}, File Number = {}, Cache Size = {}, Network Topology = {}'.format(srv_num, file_num,cache_sz,graph_type))
+    print('# of Servers = {}, # of Files = {}, Cache Size = {}, Network Topology = {}, Placement Distribution = {}'.format(srv_num, file_num,cache_sz,graph_type,placement_dist))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -67,24 +67,25 @@ def simulator1_torus(params):
     # the outer list is indexed by the files
     file_sets = [[] for i in range(file_num)]
 
+    if placement_dist == 'Uniform':
+        # Randomly places cache_sz files in each servers
+        print('Randomly places {} files in each server'.format(cache_sz))
+        # First put randomly one copy of each file in a subset of servers (assuming file_num =< srv_num)
+        lst = np.random.permutation(srv_num)[0:file_num]
+        for i, s in enumerate(lst):
+            file_sets[i].append(s)
+            srvs[s].set_files_list([i])
+        # Then fills the rest of empty cache places
+        for s in range(srv_num):
+            #print(s)
+            srvlst = srvs[s].get_files_list()
+            list = np.random.permutation(file_num)[0:cache_sz - len(srvlst)]
+            srvs[s].set_files_list(srvlst.extend(list))
+            for j in range(len(list)):
+                if s not in file_sets[list[j]]:
+                    file_sets[list[j]].append(s)
+        print('Done with randomly placing {} files in each server'.format(cache_sz))
 
-    # Randomly places cache_sz files in each servers
-    print('Randomly places {} files in each server'.format(cache_sz))
-    # First put randomly one copy of each file in a subset of servers (assuming file_num =< srv_num)
-    lst = np.random.permutation(srv_num)[0:file_num]
-    for i, s in enumerate(lst):
-        file_sets[i].append(s)
-        srvs[s].set_files_list([i])
-    # Then fills the rest of empty cache places
-    for s in range(srv_num):
-        #print(s)
-        srvlst = srvs[s].get_files_list()
-        list = np.random.permutation(file_num)[0:cache_sz - len(srvlst)]
-        srvs[s].set_files_list(srvlst.extend(list))
-        for j in range(len(list)):
-            if s not in file_sets[list[j]]:
-                file_sets[list[j]].append(s)
-    print('Done with randomly placing {} files in each server'.format(cache_sz))
 
     # Main loop of the simulator. We throw n balls requests into the servers.
     # Each request randomly pick a server and a file.
@@ -115,7 +116,6 @@ def simulator1_torus(params):
         srvs[srv0].add_load()
 
 
-
     print('The simulator 1 is done.')
 
     # At the end of simulation, find maximum load, etc.
@@ -138,10 +138,10 @@ def simulator2_torus(params):
     # cache_sz: Cache size of each server (expressed in number of files)
     # file_num: Total number of files in the system
 
-    srv_num, cache_sz, file_num, graph_type = params
+    srv_num, cache_sz, file_num, graph_type, placement_dist = params
 
     print('The simulator 2 is starting with parameters:')
-    print('Server Number = {}, File Number = {}, Cache Size = {}, Network Topology = {}'.format(srv_num, file_num,cache_sz,graph_type))
+    print('# of Servers = {}, # of Files = {}, Cache Size = {}, Network Topology = {}, Placement Distribution = {}'.format(srv_num, file_num,cache_sz,graph_type,placement_dist))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -173,24 +173,26 @@ def simulator2_torus(params):
     # file index and for each file we have a list that contains the servers cached that file.
     file_sets = [[] for i in range(file_num)]
 
-    # Randomly places cache_sz files in each servers
-    print('Randomly places {} files in each server'.format(cache_sz))
-    # First put randomly one copy of each file in a subset of servers (assuming file_num =< srv_num)
-    lst = np.random.permutation(srv_num)[0:file_num]
-    for i, s in enumerate(lst):
-        file_sets[i].append(s)
-        srvs[s].set_files_list([i])
-    # Then fills the rest of empty cache places
-    for s in range(srv_num):
-        #print(s)
-        srvlst = srvs[s].get_files_list()
-        list = np.random.permutation(file_num)[0:cache_sz - len(srvlst)]
-        srvs[s].set_files_list(srvlst.extend(list))
-        for j in range(len(list)):
-            if s not in file_sets[list[j]]:
-                file_sets[list[j]].append(s)
 
-    print('Done with randomly placing {} files in each server'.format(cache_sz))
+    if placement_dist == 'Uniform':
+        # Randomly places cache_sz files in each servers
+        print('Randomly places {} files in each server'.format(cache_sz))
+        # First put randomly one copy of each file in a subset of servers (assuming file_num =< srv_num)
+        lst = np.random.permutation(srv_num)[0:file_num]
+        for i, s in enumerate(lst):
+            file_sets[i].append(s)
+            srvs[s].set_files_list([i])
+        # Then fills the rest of empty cache places
+        for s in range(srv_num):
+            #print(s)
+            srvlst = srvs[s].get_files_list()
+            list = np.random.permutation(file_num)[0:cache_sz - len(srvlst)]
+            srvs[s].set_files_list(srvlst.extend(list))
+            for j in range(len(list)):
+                if s not in file_sets[list[j]]:
+                    file_sets[list[j]].append(s)
+
+        print('Done with randomly placing {} files in each server'.format(cache_sz))
 
 #    print(file_sets)
 
@@ -275,10 +277,10 @@ def simulator3_torus(params):
     # file_num: Total number of files in the system
     # alpha: alpha determines the search space as follows: (1+alpha)NearestNeighborDistance
 
-    srv_num, cache_sz, file_num, graph_type, alpha = params
+    srv_num, cache_sz, file_num, graph_type, placement_dist, alpha = params
 
     print('The simulator 3 is starting with parameters:')
-    print('Server Number = {}, File Number = {}, Cache Size = {}, Network Topology = {}'.format(srv_num, file_num,cache_sz,graph_type))
+    print('# of Servers = {}, # of Files = {}, Cache Size = {}, Network Topology = {}, Placement Distribution = {}'.format(srv_num, file_num,cache_sz,graph_type,placement_dist))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -307,25 +309,26 @@ def simulator3_torus(params):
     # file index and for each file we have a list that contains the servers cached that file.
     file_sets = [[] for i in range(file_num)]
 
-    # Randomly places cache_sz files in each servers
-    print('Randomly places {} files in each server'.format(cache_sz))
-    # First put randomly one copy of each file in a subset of servers (assuming file_num =< srv_num)
-    lst = np.random.permutation(srv_num)[0:file_num]
-    for i, s in enumerate(lst):
-        file_sets[i].append(int(s))
-        srvs[s].set_files_list([i])
-    # Then fills the rest of empty cache places
-    for s in range(srv_num):
-        #print(type(s))
-        srvlst = srvs[s].get_files_list()
-        rnd_lst = np.random.permutation(file_num)[0:cache_sz - len(srvlst)]
-        #rnd_lst = [int(l) for l in rnd_lst]
-        srvs[s].set_files_list(srvlst.extend(rnd_lst))
-        for j in range(len(rnd_lst)):
-            if s not in file_sets[rnd_lst[j]]:
-                file_sets[rnd_lst[j]].append(s)
+    if placement_dist == 'Uniform':
+        # Randomly places cache_sz files in each servers
+        print('Randomly places {} files in each server'.format(cache_sz))
+        # First put randomly one copy of each file in a subset of servers (assuming file_num =< srv_num)
+        lst = np.random.permutation(srv_num)[0:file_num]
+        for i, s in enumerate(lst):
+            file_sets[i].append(int(s))
+            srvs[s].set_files_list([i])
+        # Then fills the rest of empty cache places
+        for s in range(srv_num):
+            #print(type(s))
+            srvlst = srvs[s].get_files_list()
+            rnd_lst = np.random.permutation(file_num)[0:cache_sz - len(srvlst)]
+            #rnd_lst = [int(l) for l in rnd_lst]
+            srvs[s].set_files_list(srvlst.extend(rnd_lst))
+            for j in range(len(rnd_lst)):
+                if s not in file_sets[rnd_lst[j]]:
+                    file_sets[rnd_lst[j]].append(s)
 
-    print('Done with randomly placing {} files in each server'.format(cache_sz))
+        print('Done with randomly placing {} files in each server'.format(cache_sz))
 
 
     # Main loop of the simulator. We throw n balls requests into the servers.

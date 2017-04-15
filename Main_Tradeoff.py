@@ -16,8 +16,6 @@ import time
 #from BallsBins.Simulator2 import Simulator2_lowmem
 from BallsBins.Simulator_Torus import *
 
-
-
 #--------------------------------------------------------------------
 #log = math.log
 sqrt = math.sqrt
@@ -27,10 +25,12 @@ sqrt = math.sqrt
 
 # Base part of the output file name
 base_out_filename = 'Tradeoff'
+
 # Pool size for parallel processing
 pool_size = 4
+
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 4
+num_of_runs = 12
 
 # Number of servers
 srv_num = 625
@@ -39,14 +39,15 @@ srv_num = 625
 #srv_range = [225, 324, 625, 900, 1225, 1600, 2025, 3025, 4096, 5041]
 
 # Cache size of each server (expressed in number of files)
-cache_sz = 2000
+cache_sz = 200
 
 # Total number of files in the system
 file_num = 200
 
 # Range of alpha where alpha is the trade-off parameter and determines the radius of our search.
-alpha_range = [0, 0.2, 0.4, 0.7, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6), sqrt(8), sqrt(12), sqrt(16), sqrt(25), 6, 10, 15, 30, 60, 120]
-#alpha_range = [50]
+#alpha_range = [0, 0.2, 0.4, 0.7, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6), sqrt(8), sqrt(12), sqrt(16), sqrt(25), 6, 10, 15, 30, 60, 120]
+#alpha_range = [0, 0.2]
+alpha_range = [0, 0.03, 0.05, 0.07, 0.1, 0.15, 0.17, 0.2, 0.25, 0.3, 0.4, 0.7, 1]
 
 # The graph structure of the network
 # It can be:
@@ -57,42 +58,50 @@ graph_type = 'Lattice'
 # The distribution of file placement in nodes' caches
 # It can be:
 # 'Uniform' for uniform placement.
-placement_dist = 'Uniform'
+#placement_dist = 'Uniform'
+placement_dist = 'Zipf'
+
+# The parameters of the placement distribution
+place_dist_param = {'gamma' : 1.0}  # For Zipf distribution where 0 < gamma < infty
 
 
 #--------------------------------------------------------------------
-
-
 if __name__ == '__main__':
     # Create a number of workers for parallel processing
     pool = Pool(processes=pool_size)
 
     t_start = time.time()
 
-    rslt_maxload = np.zeros((len(alpha_range),1+num_of_runs))
-    rslt_avgcost = np.zeros((len(alpha_range),1+num_of_runs))
+    rslt_maxload = np.zeros((len(alpha_range), 1 + num_of_runs))
+    rslt_avgcost = np.zeros((len(alpha_range), 1 + num_of_runs))
+    rslt_outage = np.zeros((len(alpha_range), 1 + num_of_runs))
     for i, alpha in enumerate(alpha_range):
-        params = [(srv_num, cache_sz, file_num, graph_type, placement_dist, alpha) for itr in range(num_of_runs)]
+        params = [(srv_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param, alpha)
+                  for itr in range(num_of_runs)]
         print(params)
 
-        rslts = pool.map(simulator3_torus, params)
+        rslts = pool.map(simulator_tradeoff_torus, params)
 #        rslts = [Simulator3((srv_num, cache_sz, file_num, graph_type, alpha))]
 
         for j, rslt in enumerate(rslts):
             #print(rslt)
             rslt_maxload[i, j + 1] = rslt['maxload']
             rslt_avgcost[i, j + 1] = rslt['avgcost']
+            rslt_outage[i, j + 1] = rslt['outage']
             #tmpmxld = tmpmxld + rslt['maxload']
             #tmpavgcst = tmpavgcst + rslt['avgcost']
 
-            rslt_maxload[i, 0] = alpha
-            rslt_avgcost[i, 0] = alpha
+        rslt_maxload[i, 0] = alpha
+        rslt_avgcost[i, 0] = alpha
+        rslt_outage[i, 0] = alpha
 
     t_end = time.time()
     print("The runtime is {}".format(t_end-t_start))
 
     # Write the results to a matlab .mat file
-    sio.savemat(base_out_filename + '_srvn={}_fn={}_cs={}_itr={}.mat'.format(srv_num, file_num, cache_sz, num_of_runs), {'maxload': rslt_maxload, 'avgcost': rslt_avgcost})
+    sio.savemat(base_out_filename + '_{}_srvn={}_fn={}_cs={}_itr={}.mat'\
+                .format(placement_dist, srv_num, file_num, cache_sz, num_of_runs),\
+                {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage':rslt_outage})
 
 #    if (simulator == 'one choice') or (simulator == 'one choice, low mem'):
 #        sio.savemat(base_out_filename + '_one_choice_' + 'fn={}_cs={}_itr={}.mat'.format(file_num, cache_sz, num_of_runs), {'maxload': rslt_maxload, 'avgcost': rslt_avgcost})
@@ -115,4 +124,4 @@ if __name__ == '__main__':
     #print('The maximum load is {}'.format(result['maxload']))
     #print('The average request cost is {0:0}'.format(result['avgcost']))
 
-
+    print(rslt_outage)

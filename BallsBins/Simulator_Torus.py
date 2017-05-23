@@ -27,7 +27,7 @@ sqrt = math.sqrt
 # This function simulates the randomly selection of the server
 # but there is no power of two choices.
 # This function is specialized for a Torus graph.
-def simulator_onechoice_torus(params):
+def simulator_onechoice(params):
     # Simulation parameters
     # srv_num: Number of servers
     # cache_sz: Cache size of each server (expressed in number of files)
@@ -35,11 +35,11 @@ def simulator_onechoice_torus(params):
 
     np.random.seed()  # to prevent all the instances produce the same results!
 
-    srv_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param = params
+    srv_num, req_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param = params
 
     print('The "one choice" simulator is starting with parameters:')
-    print('# of Servers = {}, # of Files = {}, Cache Size = {}, Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
-          .format(srv_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
+    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {}, Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
+          .format(srv_num, req_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -54,6 +54,16 @@ def simulator_onechoice_torus(params):
 #        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
 #        G = Gen2DLattice(srv_num)
 #        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+    if graph_type == 'RGG': # if the graph is random geometric graph (RGG)
+        rgg_radius = graph_param['rgg_radius']
+        # Generate a random geometric graph.
+        #print('------------------------------')
+        print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
+        conctd = False
+        while not conctd:
+            G = nx.random_geometric_graph(srv_num, rgg_radius)
+            conctd = nx.is_connected(G)
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
     else:
         print("Error: the graph type is not known!")
         sys.exit()
@@ -83,15 +93,15 @@ def simulator_onechoice_torus(params):
                     # file has not cached in the whole network.
 
     # Generate all the random incoming servers
-    incoming_srv_lst = np.random.randint(srv_num, size=srv_num)
+    incoming_srv_lst = np.random.randint(srv_num, size=req_num)
 
     # Generate all the random requests
     if placement_dist == 'Uniform':
-        rqstd_file_lst = np.random.randint(file_num, size=srv_num)
+        rqstd_file_lst = np.random.randint(file_num, size=req_num)
     elif placement_dist == 'Zipf':
-        rqstd_file_lst = bounded_zipf(file_num, place_dist_param['gamma'], srv_num)
+        rqstd_file_lst = bounded_zipf(file_num, place_dist_param['gamma'], req_num)
 
-    for i in range(srv_num):
+    for i in range(req_num):
         #print(i)
         incoming_srv = incoming_srv_lst[i] # Random incoming server
 
@@ -145,11 +155,11 @@ def simulator_twochoice_torus(params):
 
     np.random.seed()  # to prevent all the instances produce the same results!
 
-    srv_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param = params
+    srv_num, req_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param = params
 
     print('The "two choices" simulator is starting with parameters:')
-    print('# of Servers = {}, # of Files = {}, Cache Size = {}, Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
-          .format(srv_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
+    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {}, Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
+          .format(srv_num, req_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -193,19 +203,24 @@ def simulator_twochoice_torus(params):
                     # file has not cached in the whole network.
 
     # Generate all the random incoming servers
-    incoming_srv_lst = np.random.randint(srv_num, size=srv_num)
+    incoming_srv_lst = np.random.randint(srv_num, size=req_num)
 
     # Generate all the random requests
     if placement_dist == 'Uniform':
-        rqstd_file_lst = np.random.randint(file_num, size=srv_num)
+        rqstd_file_lst = np.random.randint(file_num, size=req_num)
     elif placement_dist == 'Zipf':
-        rqstd_file_lst = bounded_zipf(file_num, place_dist_param['gamma'], srv_num)
+        rqstd_file_lst = bounded_zipf(file_num, place_dist_param['gamma'], req_num)
 
-    for i in range(srv_num):
+#    print(len(rqstd_file_lst))
+#    print(len(incoming_srv_lst))
+
+    for i in range(req_num):
         #print(i)
         incoming_srv = incoming_srv_lst[i] # Random incoming server
 
         rqstd_file = rqstd_file_lst[i] # Random requested file
+
+        #print(len(list_cached_files))
 
         if rqstd_file in list_cached_files:
 #            all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
@@ -251,6 +266,7 @@ def simulator_twochoice_torus(params):
                 total_cost += all_sh_path_len_G[srv1]
         else:
             outage_num +=  1
+
 
     print('The "two choices" simulator is done.')
 #    print('------------------------------')
@@ -493,8 +509,7 @@ def simulator_tradeoff_torus(params):
 #
 # Return:
 #
-def srv_cache_placement(srv_num, file_num, cache_sz, placement_dist, place_dist_param,\
-                        srvs):
+def srv_cache_placement(srv_num, file_num, cache_sz, placement_dist, place_dist_param, srvs):
 
     # List of sets of servers containing each file. The list is enumerate by the
     # file index and for each file we have a list that contains the servers cached that file.
@@ -511,7 +526,7 @@ def srv_cache_placement(srv_num, file_num, cache_sz, placement_dist, place_dist_
         for i, s in enumerate(lst):
             file_sets[i].append(s)
             srvs[s].set_files_list([i])
-            list_cached_files.append(s)
+            list_cached_files.append(i)
         # Then fills the rest of empty cache places
         for s in range(srv_num):
             #print(s)
@@ -538,5 +553,7 @@ def srv_cache_placement(srv_num, file_num, cache_sz, placement_dist, place_dist_
                     list_cached_files.append(tmp_lst[j])
         #print(list_chached_files)
         print('Done with randomly placing {} files in each server with Zipf dist.'.format(cache_sz))
+
+    #print(list_cached_files)
 
     return srvs, file_sets, list_cached_files

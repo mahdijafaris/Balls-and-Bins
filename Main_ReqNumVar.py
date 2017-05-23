@@ -1,6 +1,11 @@
 # This file simulates the randomly selection of the server.
+#
 # The one choice and two choices are both implemented
 # in this file that runs Simulator1 and Simulator2.
+#
+# Here, the number of requests (m in our paper) is changed
+# and the maximum load vs average load will be investigated.
+
 
 from __future__ import division
 import math
@@ -36,27 +41,22 @@ from BallsBins.Simulator_Torus import *
 simulator = 'two choice'
 
 # Base part of the output file name
-base_out_filename = 'CacheSzVar'
+base_out_filename = 'ReqNumVar'
 
 # Pool size for parallel processing
 pool_size = 2
 
 # Number of runs for computing average values. It is more efficient that num_of_runs be a multiple of pool_size
-num_of_runs = 4
+num_of_runs = 200
 
 # Number of servers
 srv_num = 2025
 
 # Cache size of each server (expressed in number of files)
-#cache_sz = 2
-# Cache increment step size
-cache_step_sz = 20
+cache_sz = 10
+
 # Total number of files in the system
 file_num = 200
-
-# The list of cache sizes that will be used in the simulation
-cache_range = range(1, 20) + range(20, 200, cache_step_sz)
-cache_range = [5, 19]
 
 # The graph structure of the network
 # It can be:
@@ -67,12 +67,17 @@ graph_type = 'Lattice'
 # The distribution of file placement in nodes' caches
 # It can be:
 # 'Uniform' for uniform placement.
-#placement_dist = 'Uniform'
-placement_dist = 'Zipf'
+# 'Zipf' for Zipf placement. We have to determine the parameter 'gamma' for this distribution in 'place_dist_param'.
+placement_dist = 'Uniform'
+#placement_dist = 'Zipf'
 
 # The parameters of the placement distribution
-place_dist_param = {'gamma' : 1.0}  # For Zipf distribution where 0 < gamma < infty
+place_dist_param = {'gamma' : 0.0}  # For Zipf distribution where 0 < gamma < infty
+#place_dist_param = {}
 
+# The set of request numbers
+req_num_set = [1, 100, 500, 1000, 1500, 1800, 2025, 2300, 2800, 3500, 5000, 8000]
+#req_num_set = [20]
 
 #--------------------------------------------------------------------
 if __name__ == '__main__':
@@ -81,11 +86,11 @@ if __name__ == '__main__':
 
     t_start = time.time()
 
-    rslt_maxload = np.zeros((len(cache_range), 1+num_of_runs))
-    rslt_avgcost = np.zeros((len(cache_range), 1+num_of_runs))
-    rslt_outage = np.zeros((len(cache_range), 1+num_of_runs))
-    for i, cache_sz in enumerate(cache_range):
-        params = [(srv_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param)
+    rslt_maxload = np.zeros((len(req_num_set), 1+num_of_runs))
+    rslt_avgcost = np.zeros((len(req_num_set), 1+num_of_runs))
+    rslt_outage = np.zeros((len(req_num_set), 1+num_of_runs))
+    for i, req_num in enumerate(req_num_set):
+        params = [(srv_num, req_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param)
                   for itr in range(num_of_runs)]
         print(params)
         if simulator == 'one choice':
@@ -104,9 +109,9 @@ if __name__ == '__main__':
 #                tmpmxld = tmpmxld + rslt['maxload']
 #                tmpavgcst = tmpavgcst + rslt['avgcost']
             
-        rslt_maxload[i, 0] = cache_sz
-        rslt_avgcost[i, 0] = cache_sz
-        rslt_outage[i, 0] = cache_sz
+        rslt_maxload[i, 0] = req_num
+        rslt_avgcost[i, 0] = req_num
+        rslt_outage[i, 0] = req_num
 #            result[i,1] = tmpmxld/num_of_runs
 #            result[i,2] = tmpavgcst/num_of_runs
 
@@ -115,12 +120,25 @@ if __name__ == '__main__':
     print("The runtime is {}".format(t_end-t_start))
 
     if (simulator == 'one choice') or (simulator == 'one choice, low mem'):
-        sio.savemat(base_out_filename+'_one_choice_'+'sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs),\
-                    {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+        if placement_dist == 'Uniform':
+            sio.savemat(base_out_filename+'_{}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat'\
+                        .format(placement_dist,srv_num,file_num,cache_sz,num_of_runs),\
+                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+        elif placement_dist == 'Zipf':
+            sio.savemat(base_out_filename+'_{}_gamma={}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat'\
+                        .format(placement_dist,place_dist_param['gamma'],srv_num,file_num,cache_sz,num_of_runs),\
+                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
     elif (simulator == 'two choice') or (simulator == 'two choice, low mem'):
-        sio.savemat(base_out_filename+'_two_choice_'+'sn={}_fn={}_itr={}.mat'.format(srv_num,file_num,num_of_runs),\
-                    {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+        if placement_dist == 'Uniform':
+            sio.savemat(base_out_filename+'_{}_two_choices_srvn={}_fn={}_cs={}_itr={}.mat'\
+                        .format(placement_dist,srv_num,file_num,cache_sz,num_of_runs),\
+                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+        elif placement_dist == 'Zipf':
+            sio.savemat(base_out_filename+'_{}_gamma={}_two_choices_srvn={}_fn={}_cs={}_itr={}.mat'\
+                        .format(placement_dist,place_dist_param['gamma'],srv_num,file_num,cache_sz,num_of_runs),\
+                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
 
+    print(placement_dist)
 #    if simulator == 'one choice':
 #        np.savetxt(base_out_filename+'_sim1_'+'sn={}_fn={}_itr={}.txt'.format(srv_num,file_num,num_of_runs), result, delimiter=',')
 #    elif simulator == 'two choice':

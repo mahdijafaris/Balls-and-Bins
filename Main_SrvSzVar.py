@@ -29,8 +29,8 @@ from BallsBins.Simulator_Torus import *
 # Choose the simulator. It can be the following values:
 # 'one choice'
 # 'two choice'
-#simulator = 'one choice'
-simulator = 'two choice'
+simulator = 'one choice'
+#simulator = 'two choice'
 
 # Base part of the output file name
 base_out_filename = 'SrvSzVar'
@@ -58,8 +58,12 @@ file_num = 200
 # The graph structure of the network
 # It can be:
 # 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
-graph_type = 'Lattice'
-#graph_type = 'RGG'
+# 'RGG' for random geometric graph.
+#graph_type = 'Lattice'
+graph_type = 'RGG'
+
+# The parameters of the selected random graph
+graph_param = {'rgg_radius' : sqrt(5/4*log(srv_num))/sqrt(srv_num)} # RGG radius for random geometric graph.
 
 # The distribution of file placement in nodes' caches
 # It can be:
@@ -82,11 +86,11 @@ if __name__ == '__main__':
     rslt_avgcost = np.zeros((len(srv_range), 1 + num_of_runs))
     rslt_outage = np.zeros((len(srv_range), 1 + num_of_runs))
     for i, srv_num in enumerate(srv_range):
-        params = [(srv_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param)
+        params = [(srv_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param)
                   for itr in range(num_of_runs)]
         print(params)
         if simulator == 'one choice':
-            rslts = pool.map(simulator_onechoice_torus, params)
+            rslts = pool.map(simulator_onechoice, params)
         elif simulator == 'two choice':
             rslts = pool.map(simulator_twochoice_torus, params)
         else:

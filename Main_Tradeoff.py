@@ -27,19 +27,19 @@ sqrt = math.sqrt
 base_out_filename = 'Tradeoff'
 
 # Pool size for parallel processing
-pool_size = 4
+pool_size = 14
 
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 12
+num_of_runs = 150
 
 # Number of servers
-srv_num = 625
+srv_num = 2500
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
 #srv_range = [2025, 5041, 7056, 10000, 20164, 50176, 70225, 100489]
 #srv_range = [225, 324, 625, 900, 1225, 1600, 2025, 3025, 4096, 5041]
 
 # Cache size of each server (expressed in number of files)
-cache_sz = 200
+cache_sz = 10
 
 # Total number of files in the system
 file_num = 200
@@ -47,7 +47,8 @@ file_num = 200
 # Range of alpha where alpha is the trade-off parameter and determines the radius of our search.
 #alpha_range = [0, 0.2, 0.4, 0.7, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6), sqrt(8), sqrt(12), sqrt(16), sqrt(25), 6, 10, 15, 30, 60, 120]
 #alpha_range = [0, 0.2]
-alpha_range = [0, 0.03, 0.05, 0.07, 0.1, 0.15, 0.17, 0.2, 0.25, 0.3, 0.4, 0.7, 1]
+alpha_range = [0, 0.03, 0.1, 0.15, 0.3, 0.4, 0.7, 0.85, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6),\
+               sqrt(8), sqrt(12), sqrt(16)]
 
 # The graph structure of the network
 # It can be:
@@ -99,9 +100,14 @@ if __name__ == '__main__':
     print("The runtime is {}".format(t_end-t_start))
 
     # Write the results to a matlab .mat file
-    sio.savemat(base_out_filename + '_{}_srvn={}_fn={}_cs={}_itr={}.mat'\
-                .format(placement_dist, srv_num, file_num, cache_sz, num_of_runs),\
-                {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage':rslt_outage})
+    if placement_dist == 'Uniform':
+        sio.savemat(base_out_filename + '_{}_srvn={}_fn={}_cs={}_itr={}.mat'\
+                    .format(placement_dist, srv_num, file_num, cache_sz, num_of_runs),\
+                    {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage':rslt_outage})
+    elif placement_dist == 'Zipf':
+        sio.savemat(base_out_filename + '_{}_gamma={}_srvn={}_fn={}_cs={}_itr={}.mat' \
+                    .format(placement_dist, place_dist_param['gamma'], srv_num, file_num, cache_sz, num_of_runs), \
+                    {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage': rslt_outage})
 
 #    if (simulator == 'one choice') or (simulator == 'one choice, low mem'):
 #        sio.savemat(base_out_filename + '_one_choice_' + 'fn={}_cs={}_itr={}.mat'.format(file_num, cache_sz, num_of_runs), {'maxload': rslt_maxload, 'avgcost': rslt_avgcost})

@@ -16,7 +16,7 @@ import time
 #import string
 #from BallsBins import *
 #from BallsBins.Server import Server
-from BallsBins.Simulator_Torus import *
+from BallsBins.Simulator import *
 
 
 #--------------------------------------------------------------------

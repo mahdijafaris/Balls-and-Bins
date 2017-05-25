@@ -10,7 +10,7 @@ import sys
 import numpy as np
 import scipy.io as sio
 import time
-from BallsBins.Simulator_Torus import *
+from BallsBins.Simulator import *
 
 #--------------------------------------------------------------------
 #log = math.log

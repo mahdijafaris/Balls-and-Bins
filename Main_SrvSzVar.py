@@ -13,11 +13,6 @@ import numpy as np
 import scipy.io as sio
 import time
 from BallsBins.Simulator_Torus import *
-#from BallsBins.Simulator1 import Simulator1_lowmem
-#from BallsBins.Simulator2 import Simulator2_torus
-#from BallsBins.Simulator2 import Simulator2_lowmem
-
-
 
 #--------------------------------------------------------------------
 #log = math.log
@@ -27,49 +22,50 @@ from BallsBins.Simulator_Torus import *
 # Simulation parameters
 
 # Choose the simulator. It can be the following values:
-# 'one choice'
-# 'two choice'
-simulator = 'one choice'
-#simulator = 'two choice'
+# 'OneChoice'
+# 'TwoChoices'
+simulator = 'OneChoice'
+#simulator = 'TwoChoices'
 
 # Base part of the output file name
 base_out_filename = 'SrvSzVar'
 
 # Pool size for parallel processing
-pool_size = 2
+pool_size = 4
 
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 4
+num_of_runs = 12
 
 # Number of servers
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
 #srv_range = [2025, 5041, 7056, 10000, 20164, 50176, 70225, 100489]
-srv_range = [625]
+srv_range = [25, 100, 225, 400, 625, 900, 1600, 2500]
 #srv_range = [225, 324, 625, 900, 1225, 1600, 2025, 3025, 4096, 5041]
 
 # Cache size of each server (expressed in number of files)
-cache_sz = 1
-# Cache increment step size
-#cache_step_sz = 10
+cache_sz = 10
 
 # Total number of files in the system
-file_num = 200
+file_num = 20
 
 # The graph structure of the network
 # It can be:
 # 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
-# 'RGG' for random geometric graph.
+# 'RGG' for random geometric graph. The RGG is generate over a unit square or unit cube.
 #graph_type = 'Lattice'
 graph_type = 'RGG'
 
 # The parameters of the selected random graph
-graph_param = {'rgg_radius' : sqrt(5/4*log(srv_num))/sqrt(srv_num)} # RGG radius for random geometric graph.
+# It is always should be defined. However, for some graphs it may not be used.
+graph_param = {'rgg_radius' : 0} # RGG radius for random geometric graph.
+                                    # For SrvSzVar RGG radius will be determined later.
 
 # The distribution of file placement in nodes' caches
 # It can be:
 # 'Uniform' for uniform placement.
-#placement_dist = 'Uniform'
-placement_dist = 'Zipf'
+# 'Zipf' for zipf distribution.
+placement_dist = 'Uniform'
+#placement_dist = 'Zipf'
 
 # The parameters of the placement distribution
 place_dist_param = {'gamma' : 1.0}  # For Zipf distribution where 0 < gamma < infty
@@ -86,13 +82,16 @@ if __name__ == '__main__':
     rslt_avgcost = np.zeros((len(srv_range), 1 + num_of_runs))
     rslt_outage = np.zeros((len(srv_range), 1 + num_of_runs))
     for i, srv_num in enumerate(srv_range):
-        params = [(srv_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param)
+        if graph_type == 'RGG': # if the graph is random geometric graph (RGG)
+            graph_param = {'rgg_radius': sqrt(5 / 4 * log(srv_num)) / sqrt(srv_num)} # if the graph is random geometric graph (RGG)
+        req_num = srv_num
+        params = [(srv_num, req_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param)
                   for itr in range(num_of_runs)]
         print(params)
-        if simulator == 'one choice':
+        if simulator == 'OneChoice':
             rslts = pool.map(simulator_onechoice, params)
-        elif simulator == 'two choice':
-            rslts = pool.map(simulator_twochoice_torus, params)
+        elif simulator == 'TwoChoices':
+            rslts = pool.map(simulator_twochoice, params)
         else:
             print('Error: an invalid simulator!')
             sys.exit()
@@ -111,12 +110,28 @@ if __name__ == '__main__':
     t_end = time.time()
     print("The runtime is {}".format(t_end-t_start))
 
-    if (simulator == 'one choice') or (simulator == 'one choice, low mem'):
-        sio.savemat(base_out_filename + '_one_choice_' + 'fn={}_cs={}_itr={}.mat'.format(file_num, cache_sz, num_of_runs),
-                    {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage':rslt_outage})
-    elif (simulator == 'two choice') or (simulator == 'two choice, low mem'):
-        sio.savemat(base_out_filename + '_two_choice_' + 'fn={}_cs={}_itr={}.mat'.format(file_num, cache_sz, num_of_runs),
-                    {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage':rslt_outage})
+    # Write the results to a matlab .mat file
+    if placement_dist == 'Uniform':
+        sio.savemat(base_out_filename + '_{}_{}_{}_fn={}_cs={}_itr={}.mat'.\
+            format(graph_type, placement_dist, simulator, file_num, cache_sz, num_of_runs),
+            {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage': rslt_outage})
+    elif placement_dist == 'Zipf':
+        sio.savemat(base_out_filename + '_{}_{}_gamma={}_{}_fn={}_cs={}_itr={}.mat'.\
+            format(graph_type, placement_dist, place_dist_param['gamma'], simulator, file_num, cache_sz, num_of_runs),
+            {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage': rslt_outage})
+
+
+
+#    if simulator == 'one choice':
+#        sio.savemat(base_out_filename + '_{}_fn={}_cs={}_itr={}.mat'.format(simulator, file_num, cache_sz, num_of_runs),
+#                    {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage':rslt_outage})
+#    elif simulator == 'two choice':
+#        sio.savemat(base_out_filename + '_two_choice_' + 'fn={}_cs={}_itr={}.mat'.format(file_num, cache_sz, num_of_runs),
+#                    {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage':rslt_outage})
+
+
+
+
 
 #    if simulator == 'one choice':
 #        np.savetxt(base_out_filename+'_sim1_'+'fn={}_cs={}_itr={}.txt'.format(file_num,cache_sz,num_of_runs), result, delimiter=',')

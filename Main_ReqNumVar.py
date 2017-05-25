@@ -94,7 +94,7 @@ if __name__ == '__main__':
                   for itr in range(num_of_runs)]
         print(params)
         if simulator == 'one choice':
-            rslts = pool.map(simulator_onechoice_torus, params)
+            rslts = pool.map(simulator_onechoice, params)
 #            rslts = map(Simulator1, params)
         elif simulator == 'two choice':
             rslts = pool.map(simulator_twochoice_torus, params)

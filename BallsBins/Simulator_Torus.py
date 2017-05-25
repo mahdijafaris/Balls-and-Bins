@@ -5,7 +5,7 @@
 from __future__ import division
 import math
 import sys
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 #import string
@@ -13,7 +13,7 @@ import numpy as np
 from BallsBins.Statistic import bounded_zipf
 from BallsBins.Server import Server
 from BallsBins.Graph import Gen2DLattice
-from BallsBins.Graph import shortest_path_length_torus
+from BallsBins.Graph import *
 
 
 #--------------------------------------------------------------------
@@ -38,8 +38,9 @@ def simulator_onechoice(params):
     srv_num, req_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param = params
 
     print('The "one choice" simulator is starting with parameters:')
-    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {}, Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
-          .format(srv_num, req_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
+    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {}, \
+            Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
+            .format(srv_num, req_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -51,28 +52,29 @@ def simulator_onechoice(params):
         if not side.is_integer():
             print("Error: the size of lattice is not perfect square!")
             sys.exit()
+        shortest_path_matrix = all_shortest_path_length_torus(srv_num)
 #        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
 #        G = Gen2DLattice(srv_num)
 #        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
-    if graph_type == 'RGG': # if the graph is random geometric graph (RGG)
+    elif graph_type == 'RGG': # if the graph is random geometric graph (RGG)
         rgg_radius = graph_param['rgg_radius']
         # Generate a random geometric graph.
-        #print('------------------------------')
         print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
         conctd = False
         while not conctd:
             G = nx.random_geometric_graph(srv_num, rgg_radius)
             conctd = nx.is_connected(G)
         print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+        all_sh_len = nx.all_pairs_shortest_path_length(G)
+        shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()],\
+                                        dtype=np.int32)
+        shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
     else:
         print("Error: the graph type is not known!")
         sys.exit()
     # Draw the graph
     #nx.draw(G)
     #plt.show()
-
-    # Find all the shortest paths in G
-#    all_sh_path_len_G = nx.shortest_path_length(G)
 
     # Create 'srv_num' servers from the class server
     srvs = [Server(i) for i in range(srv_num)]
@@ -84,7 +86,10 @@ def simulator_onechoice(params):
     srvs, file_sets, list_cached_files = \
         srv_cache_placement(srv_num, file_num, cache_sz, placement_dist, place_dist_param, srvs)
 
-    # Main loop of the simulator. We throw n balls requests into the servers.
+    # ---------------------------------------------------------------
+    # Main loop of the simulator.
+    # ---------------------------------------------------------------
+    # We throw n balls requests into the servers.
     # Each request randomly pick a server and a file.
     print('The "one choice" simulator core is starting...')
 
@@ -113,11 +118,12 @@ def simulator_onechoice(params):
             else:
                 # Find the nearest server that has the requested file
                 #all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
-                all_sh_path_len_G = shortest_path_length_torus(srv_num, incoming_srv)
+                #all_sh_path_len_G = shortest_path_length_torus(srv_num, incoming_srv)
                 dmin = 2*srv_num # some large number!
                 for nd in file_sets[rqstd_file]:
                     #d = nx.shortest_path_length(G, source=incoming_srv, target=nd)
-                    d = all_sh_path_len_G[nd]
+                    #d = all_sh_path_len_G[nd]
+                    d = shortest_path_matrix[incoming_srv, nd]
                     if d < dmin:
                         dmin = d
                         srv0 = nd
@@ -147,7 +153,7 @@ def simulator_onechoice(params):
 #--------------------------------------------------------------------
 #--------------------------------------------------------------------
 # This function is the core implementation of power of two choices.
-def simulator_twochoice_torus(params):
+def simulator_twochoice(params):
     # Simulation parameters
     # srv_num: Number of servers
     # cache_sz: Cache size of each server (expressed in number of files)
@@ -155,11 +161,13 @@ def simulator_twochoice_torus(params):
 
     np.random.seed()  # to prevent all the instances produce the same results!
 
-    srv_num, req_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param = params
+    #srv_num, req_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param = params
+    srv_num, req_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param = params
 
     print('The "two choices" simulator is starting with parameters:')
-    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {}, Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
-          .format(srv_num, req_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
+    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {},\
+            Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
+            .format(srv_num, req_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
 
     # Check the validity of parameters
     if cache_sz > file_num:
@@ -171,18 +179,29 @@ def simulator_twochoice_torus(params):
         if not side.is_integer():
             print("Error: the size of lattice is not perfect square!")
             sys.exit()
-#        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
-#        G = Gen2DLattice(srv_num)
-#        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+        shortest_path_matrix = all_shortest_path_length_torus(srv_num)
+        #        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
+        #        G = Gen2DLattice(srv_num)
+        #        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'RGG':  # if the graph is random geometric graph (RGG)
+        rgg_radius = graph_param['rgg_radius']
+        # Generate a random geometric graph.
+        print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
+        conctd = False
+        while not conctd:
+            G = nx.random_geometric_graph(srv_num, rgg_radius)
+            conctd = nx.is_connected(G)
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+        all_sh_len = nx.all_pairs_shortest_path_length(G)
+        shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()], \
+                                        dtype=np.int32)
+        shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
     else:
         print("Error: the graph type is not known!")
         sys.exit()
-    # Draw the graph
-    #nx.draw(G)
-    #plt.show()
-
-    # Find all the shortest paths in G
-#    all_sh_path_len_G = nx.shortest_path_length(G)
+        # Draw the graph
+        # nx.draw(G)
+        # plt.show()
 
     # Create 'srv_num' servers from the class server
     srvs = [Server(i) for i in range(srv_num)]
@@ -194,7 +213,10 @@ def simulator_twochoice_torus(params):
     srvs, file_sets, list_cached_files = \
         srv_cache_placement(srv_num, file_num, cache_sz, placement_dist, place_dist_param, srvs)
 
-    # Main loop of the simulator. We throw n ball requests into the servers.
+    # ---------------------------------------------------------------
+    # Main loop of the simulator.
+    # ---------------------------------------------------------------
+    # We throw n ball requests into the servers.
     # Each request randomly pick a server and a file.
     print('The "two choices" simulator core is starting...')
 
@@ -224,7 +246,7 @@ def simulator_twochoice_torus(params):
 
         if rqstd_file in list_cached_files:
 #            all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
-            all_sh_path_len_G = shortest_path_length_torus(srv_num, incoming_srv)
+            #all_sh_path_len_G = shortest_path_length_torus(srv_num, incoming_srv)
             if incoming_srv in file_sets[rqstd_file]:
                 srv0 = incoming_srv
             else:
@@ -232,7 +254,8 @@ def simulator_twochoice_torus(params):
                 dmin = 2*srv_num # some large number!
                 for nd in file_sets[rqstd_file]:
                     #d = nx.shortest_path_length(G, source=incoming_srv, target=nd)
-                    d = all_sh_path_len_G[nd]
+                    #d = all_sh_path_len_G[nd]
+                    d = shortest_path_matrix[incoming_srv, nd]
                     if d < dmin:
                         dmin = d
                         srv0 = nd
@@ -249,21 +272,25 @@ def simulator_twochoice_torus(params):
             if load0 > load1:
                 srvs[srv1].add_load()
                 #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv1)
-                total_cost += all_sh_path_len_G[srv1]
+                #total_cost += all_sh_path_len_G[srv1]
+                total_cost += shortest_path_matrix[incoming_srv, srv1]
             elif load0 < load1:
                 srvs[srv0].add_load()
                 if srv0 != incoming_srv:
                     #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv0)
-                    total_cost += all_sh_path_len_G[srv0]
+                    #total_cost += all_sh_path_len_G[srv0]
+                    total_cost += shortest_path_matrix[incoming_srv, srv0]
             elif np.random.randint(2) == 0:
                 srvs[srv0].add_load()
                 if srv0 != incoming_srv:
                     #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv0)
-                    total_cost += all_sh_path_len_G[srv0]
+                    #total_cost += all_sh_path_len_G[srv0]
+                    total_cost += shortest_path_matrix[incoming_srv, srv0]
             else:
                 srvs[srv1].add_load()
                 #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv1)
-                total_cost += all_sh_path_len_G[srv1]
+                #total_cost += all_sh_path_len_G[srv1]
+                total_cost += shortest_path_matrix[incoming_srv, srv1]
         else:
             outage_num +=  1
 
@@ -293,19 +320,24 @@ def simulator_twochoice_torus(params):
 # Here we implement the power of two choices. However we change the
 # radius of search for finding two bins. By changing this radius, we
 # will get different trade-offs.
-def simulator_tradeoff_torus(params):
+def simulator_tradeoff(params):
     # Simulation parameters
     # srv_num: Number of servers
     # cache_sz: Cache size of each server (expressed in number of files)
     # file_num: Total number of files in the system
+    # graph_type: Topology of network
+    # graph_param: Parameters for generating network topology
+    # placement_dist: File library distribution
+    # place_dist_param: Parameters of file library distribution
     # alpha: alpha determines the search space as follows: (1+alpha)NearestNeighborDistance
 
     np.random.seed()  # to prevent all the instances produce the same results!
 
-    srv_num, cache_sz, file_num, graph_type, placement_dist, place_dist_param, alpha = params
+    srv_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param, alpha = params
 
     print('The "Trade-off" simulator is starting with parameters:')
-    print('# of Srvs = {}, # of Files = {}, Cache Size = {}, Net. Top. = {}, alpha = {}, Plc. Dist. = {}, Plc. Dist. Param. = {}'\
+    print('# of Srvs = {}, # of Files = {}, Cache Size = {}, Net. Top. = {},\
+            alpha = {}, Plc. Dist. = {}, Plc. Dist. Param. = {}'\
             .format(srv_num, file_num, cache_sz, graph_type, alpha, placement_dist, place_dist_param))
 
     # Check the validity of parameters
@@ -318,15 +350,29 @@ def simulator_tradeoff_torus(params):
         if not side.is_integer():
             print("Error: the size of lattice is not perfect square!")
             sys.exit()
-#        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
-#        G = Gen2DLattice(srv_num)
-#        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+        shortest_path_matrix = all_shortest_path_length_torus(srv_num)
+        #        print('Start generating a square lattice graph with {} nodes...'.format(srv_num))
+        #        G = Gen2DLattice(srv_num)
+        #        print('Succesfully generates a square lattice graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'RGG':  # if the graph is random geometric graph (RGG)
+        rgg_radius = graph_param['rgg_radius']
+        # Generate a random geometric graph.
+        print('Start generating a random geometric graph with {} nodes...'.format(srv_num))
+        conctd = False
+        while not conctd:
+            G = nx.random_geometric_graph(srv_num, rgg_radius)
+            conctd = nx.is_connected(G)
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+        all_sh_len = nx.all_pairs_shortest_path_length(G)
+        shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()], \
+                                        dtype=np.int32)
+        shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
     else:
         print("Error: the graph type is not known!")
         sys.exit()
-    # Draw the graph
-    #nx.draw(G)
-    #plt.show()
+        # Draw the graph
+        # nx.draw(G)
+        # plt.show()
 
     # Create 'srv_num' servers from the class server
     srvs = [Server(i) for i in range(srv_num)]
@@ -378,7 +424,8 @@ def simulator_tradeoff_torus(params):
         #print(list_chached_files)
 #        print('Done with randomly placing {} files in each server with Zipf dist.'.format(cache_sz))
 
-    # Main loop of the simulator. We throw n balls requests into the servers.
+    # Main loop of the simulator.
+    # We throw n balls requests into the servers.
     # Each request randomly pick a server and a file.
     # Then we apply the power of two choices scheme but up to some radius from the requsting
     # node.
@@ -407,8 +454,8 @@ def simulator_tradeoff_torus(params):
 
         if rqstd_file in list_cached_files:
             # Find the shortest path from requesting nodes to all other nodes
-#            all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
-            all_sh_path_len_G = shortest_path_length_torus(srv_num, incoming_srv)
+            #all_sh_path_len_G = nx.shortest_path_length(G, source=incoming_srv)
+            #all_sh_path_len_G = shortest_path_length_torus(srv_num, incoming_srv)
 
             # Find the nearest server that has the requested file
 #            print(file_sets[rqstd_file])
@@ -423,7 +470,8 @@ def simulator_tradeoff_torus(params):
                 dmin = 2*srv_num # some large number, eg, larger that the graph diameter!
                 for nd in srv_lst_for_this_request_excld_incom_srv:
                     #d = nx.shortest_path_length(G, source=incoming_srv, target=nd)
-                    dtmp = all_sh_path_len_G[nd]
+                    #dtmp = all_sh_path_len_G[nd]
+                    dtmp = shortest_path_matrix[incoming_srv, nd]
                     if dtmp < dmin:
                         dmin = dtmp
                         nearest_neighbor = nd
@@ -443,7 +491,7 @@ def simulator_tradeoff_torus(params):
                 # Now we have to find a subset of nodes that have the requested file and
                 # are within a distant "(1+alpha)*dmin" from the requesting server.
                 for nd in file_sets[rqstd_file]:
-                    if all_sh_path_len_G[nd] <= (1+alpha)*dmin and nd != srv0:
+                    if shortest_path_matrix[incoming_srv, nd] <= (1+alpha)*dmin and nd != srv0:
                         twochoice_search_space.append(nd)
 
                 if len(twochoice_search_space) > 0:
@@ -462,21 +510,25 @@ def simulator_tradeoff_torus(params):
             if load0 > load1:
                 srvs[srv1].add_load()
                 #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv1)
-                total_cost += all_sh_path_len_G[srv1]
+                #total_cost += all_sh_path_len_G[srv1]
+                total_cost += shortest_path_matrix[incoming_srv, srv1]
             elif load0 < load1:
                 srvs[srv0].add_load()
                 if srv0 != incoming_srv:
                     #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv0)
-                    total_cost += all_sh_path_len_G[srv0]
+                    #total_cost += all_sh_path_len_G[srv0]
+                    total_cost += shortest_path_matrix[incoming_srv, srv0]
             elif np.random.randint(2) == 0:
                 srvs[srv0].add_load()
                 if srv0 != incoming_srv:
                     #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv0)
-                    total_cost += all_sh_path_len_G[srv0]
+                    #total_cost += all_sh_path_len_G[srv0]
+                    total_cost += shortest_path_matrix[incoming_srv, srv0]
             else:
                 srvs[srv1].add_load()
                 #total_cost += nx.shortest_path_length(G, source=incoming_srv, target=srv1)
-                total_cost += all_sh_path_len_G[srv1]
+                #total_cost += all_sh_path_len_G[srv1]
+                total_cost += shortest_path_matrix[incoming_srv, srv1]
         else:
             outage_num +=  1
 

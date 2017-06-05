@@ -61,17 +61,21 @@ cache_range = [5, 19]
 # It can be:
 # 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
 # 'RGG' for random geometric graph. The RGG is generate over a unit square or unit cube.
+# 'BarabasiAlbert' for Barabasi Albert random graph. It takes two parameters: # of nodes and # of edges
+#       to attach from a new node to existing nodes
 #graph_type = 'Lattice'
-graph_type = 'RGG'
+#graph_type = 'RGG'
+graph_type = 'BarabasiAlbert'
 
 # The parameters of the selected random graph
 # It is always should be defined. However, for some graphs it may not be used.
 graph_param = {'rgg_radius' : sqrt(5 / 4 * log(srv_num)) / sqrt(srv_num)} # RGG radius for random geometric graph.
+graph_param = {'num_edges' : 1} # For Barbasi Albert random graphs.
 
 # The distribution of file placement in nodes' caches
 # It can be:
 # 'Uniform' for uniform placement.
-# 'Zipf' for zipf distribution.
+# 'Zipf' for zipf distribution. We have to determine the parameter 'gamma' for this distribution in 'place_dist_param'.
 placement_dist = 'Uniform'
 #placement_dist = 'Zipf'
 

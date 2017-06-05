@@ -4,7 +4,7 @@ import numpy as np
 import scipy.stats as stats
 
 
-# This function return a random variable X \in {1,...,n}
+# This function returns smpl_nmbr samples of a random variable X \in {1,...,n}
 # with Zipf distribution
 
 def bounded_zipf(n, gamma, smpl_nmbr):

@@ -64,17 +64,30 @@ def simulator_onechoice(params):
         while not conctd:
             G = nx.random_geometric_graph(srv_num, rgg_radius)
             conctd = nx.is_connected(G)
-        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
         all_sh_len = nx.all_pairs_shortest_path_length(G)
         shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()],\
                                         dtype=np.int32)
         shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'BarabasiAlbert': # if the graph is generated according to Barabasi and Albert model.
+        num_edges = graph_param['num_edges']
+        print('Start generating a Barabasi-Albert graph with {} nodes and edge parameter {} ...'\
+              .format(srv_num, num_edges))
+        G = nx.barabasi_albert_graph(srv_num, num_edges)
+        all_sh_len = nx.all_pairs_shortest_path_length(G)
+        shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()],\
+                                        dtype=np.int32)
+        shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
+        print('Succesfully generates a Barabasi-Albert graph with {} nodes and edge parameter {} ...'\
+              .format(srv_num, num_edges))
     else:
         print("Error: the graph type is not known!")
         sys.exit()
     # Draw the graph
+    #print(shortest_path_matrix)
     #nx.draw(G)
     #plt.show()
+    #sys.exit()
 
     # Create 'srv_num' servers from the class server
     srvs = [Server(i) for i in range(srv_num)]
@@ -191,11 +204,22 @@ def simulator_twochoice(params):
         while not conctd:
             G = nx.random_geometric_graph(srv_num, rgg_radius)
             conctd = nx.is_connected(G)
-        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
         all_sh_len = nx.all_pairs_shortest_path_length(G)
         shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()], \
                                         dtype=np.int32)
         shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'BarabasiAlbert': # if the graph is generated according to Barabasi and Albert model.
+        num_edges = graph_param['num_edges']
+        print('Start generating a Barabasi-Albert graph with {} nodes and edge parameter {} ...'\
+              .format(srv_num, num_edges))
+        G = nx.barabasi_albert_graph(srv_num, num_edges)
+        all_sh_len = nx.all_pairs_shortest_path_length(G)
+        shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()],\
+                                        dtype=np.int32)
+        shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
+        print('Succesfully generates a Barabasi-Albert graph with {} nodes and edge parameter {} ...'\
+              .format(srv_num, num_edges))
     else:
         print("Error: the graph type is not known!")
         sys.exit()
@@ -362,11 +386,22 @@ def simulator_tradeoff(params):
         while not conctd:
             G = nx.random_geometric_graph(srv_num, rgg_radius)
             conctd = nx.is_connected(G)
-        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
         all_sh_len = nx.all_pairs_shortest_path_length(G)
         shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()], \
                                         dtype=np.int32)
         shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
+        print('Succesfully generates a connected random geometric graph with {} nodes...'.format(srv_num))
+    elif graph_type == 'BarabasiAlbert': # if the graph is generated according to Barabasi and Albert model.
+        num_edges = graph_param['num_edges']
+        print('Start generating a Barabasi-Albert graph with {} nodes and edge parameter {} ...'\
+              .format(srv_num, num_edges))
+        G = nx.barabasi_albert_graph(srv_num, num_edges)
+        all_sh_len = nx.all_pairs_shortest_path_length(G)
+        shortest_path_matrix = np.array([all_sh_len[i][j] for i in all_sh_len.keys() for j in all_sh_len[i].keys()],\
+                                        dtype=np.int32)
+        shortest_path_matrix = shortest_path_matrix.reshape(srv_num, srv_num)
+        print('Succesfully generates a Barabasi-Albert graph with {} nodes and edge parameter {} ...'\
+              .format(srv_num, num_edges))
     else:
         print("Error: the graph type is not known!")
         sys.exit()
@@ -607,5 +642,6 @@ def srv_cache_placement(srv_num, file_num, cache_sz, placement_dist, place_dist_
         print('Done with randomly placing {} files in each server with Zipf dist.'.format(cache_sz))
 
     #print(list_cached_files)
+    #print(len(list_cached_files))
 
     return srvs, file_sets, list_cached_files

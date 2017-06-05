@@ -31,44 +31,50 @@ simulator = 'OneChoice'
 base_out_filename = 'SrvSzVar'
 
 # Pool size for parallel processing
-pool_size = 4
+pool_size = 2
 
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 12
+num_of_runs = 10
 
 # Number of servers
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
 #srv_range = [2025, 5041, 7056, 10000, 20164, 50176, 70225, 100489]
-srv_range = [25, 100, 225, 400, 625, 900, 1600, 2500]
+#srv_range = [25, 36, 49, 64, 81, 100, 144, 225, 289, 400, 625, 900, 1225, 2025, 3025, 5041]
+srv_range = [64, 81, 100, 144, 225, 289, 400, 625, 900, 1225, 2025, 3025, 5041]
 #srv_range = [225, 324, 625, 900, 1225, 1600, 2025, 3025, 4096, 5041]
+srv_range = [64, 81]
 
 # Cache size of each server (expressed in number of files)
-cache_sz = 10
+cache_sz = 2
 
 # Total number of files in the system
-file_num = 20
+file_num = 10
 
 # The graph structure of the network
 # It can be:
 # 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
 # 'RGG' for random geometric graph. The RGG is generate over a unit square or unit cube.
+# 'BarabasiAlbert' for Barabasi Albert random graph. It takes two parameters: # of nodes and # of edges
+#       to attach from a new node to existing nodes
 #graph_type = 'Lattice'
-graph_type = 'RGG'
+#graph_type = 'RGG'
+graph_type = 'BarabasiAlbert'
 
 # The parameters of the selected random graph
-# It is always should be defined. However, for some graphs it may not be used.
+# The dictionary graph_param should always be defined. However, for some graphs it may not be used.
 graph_param = {'rgg_radius' : 0} # RGG radius for random geometric graph.
                                     # For SrvSzVar RGG radius will be determined later.
+graph_param = {'num_edges' : 1} # For Barbasi Albert random graphs.
 
 # The distribution of file placement in nodes' caches
 # It can be:
 # 'Uniform' for uniform placement.
-# 'Zipf' for zipf distribution.
+# 'Zipf' for zipf distribution. We have to determine the parameter 'gamma' for this distribution in 'place_dist_param'.
 placement_dist = 'Uniform'
 #placement_dist = 'Zipf'
 
 # The parameters of the placement distribution
-place_dist_param = {'gamma' : 1.0}  # For Zipf distribution where 0 < gamma < infty
+place_dist_param = {'gamma' : 0.0}  # For Zipf distribution where 0 < gamma < infty
 
 
 #--------------------------------------------------------------------
@@ -149,5 +155,8 @@ if __name__ == '__main__':
     #print('The maximum load is {}'.format(result['maxload']))
     #print('The average request cost is {0:0}'.format(result['avgcost']))
 
-
+    print('Outage:')
     print(rslt_outage)
+
+    print('Maxload:')
+    print(rslt_maxload)

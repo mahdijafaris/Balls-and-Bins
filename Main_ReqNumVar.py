@@ -32,10 +32,10 @@ from BallsBins.Simulator import *
 # Simulation parameters
 
 # Choose the simulator. It can be the following values:
-# 'one choice'
-# 'two choice'
-#simulator = 'one choice'
-simulator = 'two choice'
+# 'OneChoice'
+# 'TwoChoices'
+#simulator = 'OneChoice'
+simulator = 'TwoChoices'
 
 # Base part of the output file name
 base_out_filename = 'ReqNumVar'
@@ -58,8 +58,17 @@ file_num = 200
 # The graph structure of the network
 # It can be:
 # 'Lattice' for square lattice graph. For the lattice the graph size should be perfect square.
-# 'RGG' for random geometric graph.
-graph_type = 'Lattice'
+# 'RGG' for random geometric graph. The RGG is generate over a unit square or unit cube.
+# 'BarabasiAlbert' for Barabasi Albert random graph. It takes two parameters: # of nodes and # of edges
+#       to attach from a new node to existing nodes
+#graph_type = 'Lattice'
+#graph_type = 'RGG'
+graph_type = 'BarabasiAlbert'
+
+# The parameters of the selected random graph
+# It is always should be defined. However, for some graphs it may not be used.
+graph_param = {'rgg_radius' : 0} # RGG radius for random geometric graph.
+graph_param = {'num_edges' : 1} # For Barbasi Albert random graphs.
 
 # The distribution of file placement in nodes' caches
 # It can be:
@@ -116,26 +125,46 @@ if __name__ == '__main__':
     t_end = time.time()
     print("The runtime is {}".format(t_end-t_start))
 
-    if (simulator == 'one choice') or (simulator == 'one choice, low mem'):
-        if placement_dist == 'Uniform':
-            sio.savemat(base_out_filename+'_{}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat'\
-                        .format(placement_dist,srv_num,file_num,cache_sz,num_of_runs),\
-                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
-        elif placement_dist == 'Zipf':
-            sio.savemat(base_out_filename+'_{}_gamma={}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat'\
-                        .format(placement_dist,place_dist_param['gamma'],srv_num,file_num,cache_sz,num_of_runs),\
-                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
-    elif (simulator == 'two choice') or (simulator == 'two choice, low mem'):
-        if placement_dist == 'Uniform':
-            sio.savemat(base_out_filename+'_{}_two_choices_srvn={}_fn={}_cs={}_itr={}.mat'\
-                        .format(placement_dist,srv_num,file_num,cache_sz,num_of_runs),\
-                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
-        elif placement_dist == 'Zipf':
-            sio.savemat(base_out_filename+'_{}_gamma={}_two_choices_srvn={}_fn={}_cs={}_itr={}.mat'\
-                        .format(placement_dist,place_dist_param['gamma'],srv_num,file_num,cache_sz,num_of_runs),\
-                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+    # Write the results to a matlab .mat file
+    if placement_dist == 'Uniform':
+        sio.savemat(base_out_filename + '_{}_{}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat' \
+            .format(graph_type, placement_dist, simulator, srv_num, file_num, cache_sz, num_of_runs), \
+            {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage': rslt_outage})
+    elif placement_dist == 'Zipf':
+        sio.savemat(base_out_filename + '_{}_gamma={}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat' \
+            .format(graph_type, placement_dist, place_dist_param['gamma'], simulator, srv_num, file_num, cache_sz, num_of_runs), \
+            {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage': rslt_outage})
 
-    print(placement_dist)
+#    if (simulator == 'one choice') or (simulator == 'one choice, low mem'):
+#        if placement_dist == 'Uniform':
+#            sio.savemat(base_out_filename+'_{}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat'\
+#                        .format(placement_dist,srv_num,file_num,cache_sz,num_of_runs),\
+#                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+#        elif placement_dist == 'Zipf':
+#            sio.savemat(base_out_filename+'_{}_gamma={}_one_choice_srvn={}_fn={}_cs={}_itr={}.mat'\
+#                        .format(placement_dist,place_dist_param['gamma'],srv_num,file_num,cache_sz,num_of_runs),\
+#                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+#    elif (simulator == 'two choice') or (simulator == 'two choice, low mem'):
+#        if placement_dist == 'Uniform':
+#            sio.savemat(base_out_filename+'_{}_two_choices_srvn={}_fn={}_cs={}_itr={}.mat'\
+#                        .format(placement_dist,srv_num,file_num,cache_sz,num_of_runs),\
+#                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+#        elif placement_dist == 'Zipf':
+#            sio.savemat(base_out_filename+'_{}_gamma={}_two_choices_srvn={}_fn={}_cs={}_itr={}.mat'\
+#                        .format(placement_dist,place_dist_param['gamma'],srv_num,file_num,cache_sz,num_of_runs),\
+#                        {'maxload':rslt_maxload,'avgcost':rslt_avgcost, 'outage':rslt_outage})
+
+        if placement_dist == 'Uniform':
+            sio.savemat(base_out_filename + '_{}_{}_{}_fn={}_cs={}_itr={}.mat'. \
+                        format(graph_type, placement_dist, simulator, file_num, cache_sz, num_of_runs),
+                        {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage': rslt_outage})
+        elif placement_dist == 'Zipf':
+            sio.savemat(base_out_filename + '_{}_{}_gamma={}_{}_fn={}_cs={}_itr={}.mat'. \
+                        format(graph_type, placement_dist, place_dist_param['gamma'], simulator, file_num, cache_sz,
+                               num_of_runs),
+                        {'maxload': rslt_maxload, 'avgcost': rslt_avgcost, 'outage': rslt_outage})
+
+    #print(placement_dist)
 #    if simulator == 'one choice':
 #        np.savetxt(base_out_filename+'_sim1_'+'sn={}_fn={}_itr={}.txt'.format(srv_num,file_num,num_of_runs), result, delimiter=',')
 #    elif simulator == 'two choice':

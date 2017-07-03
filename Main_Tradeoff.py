@@ -23,13 +23,13 @@ sqrt = math.sqrt
 base_out_filename = 'Tradeoff'
 
 # Pool size for parallel processing
-pool_size = 4
+pool_size = 1
 
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 12
+num_of_runs = 1
 
 # Number of servers
-srv_num = 625
+srv_num = 2025
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
 #srv_range = [2025, 5041, 7056, 10000, 20164, 50176, 70225, 100489]
 #srv_range = [225, 324, 625, 900, 1225, 1600, 2025, 3025, 4096, 5041]
@@ -38,13 +38,13 @@ srv_num = 625
 cache_sz = 10
 
 # Total number of files in the system
-file_num = 600
+file_num = 500
 
 # Range of alpha where alpha is the trade-off parameter and determines the radius of our search.
-#alpha_range = [0, 0.2, 0.4, 0.7, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6), sqrt(8), sqrt(12), sqrt(16), sqrt(25), 6, 10, 15, 30, 60, 120]
+alpha_range = [0, 0.2, 0.4, 0.7, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6), sqrt(8), sqrt(12), sqrt(16), sqrt(25), 6, 10, 15, 30, 60, 120]
 #alpha_range = [0, 0.2]
-alpha_range = [0, 0.03, 0.1, 0.15, 0.3, 0.4, 0.7, 0.85, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6),\
-               sqrt(8), sqrt(12), sqrt(16)]
+#alpha_range = [0, 0.03, 0.1, 0.15, 0.3, 0.4, 0.7, 0.85, 1, sqrt(2), sqrt(3), sqrt(4), sqrt(6),\
+#               sqrt(8), sqrt(12), sqrt(16)]
 
 # The graph structure of the network
 # It can be:
@@ -53,20 +53,20 @@ alpha_range = [0, 0.03, 0.1, 0.15, 0.3, 0.4, 0.7, 0.85, 1, sqrt(2), sqrt(3), sqr
 # 'BarabasiAlbert' for Barabasi Albert random graph. It takes two parameters: # of nodes and # of edges
 #       to attach from a new node to existing nodes
 #graph_type = 'Lattice'
-#graph_type = 'RGG'
-graph_type = 'BarabasiAlbert'
+graph_type = 'RGG'
+#graph_type = 'BarabasiAlbert'
 
 # The parameters of the selected random graph
 # It is always should be defined. However, for some graphs it may not be used.
 graph_param = {'rgg_radius' : sqrt(5 / 4 * log(srv_num)) / sqrt(srv_num)} # RGG radius for random geometric graph.
-graph_param = {'num_edges' : 1} # For Barbasi Albert random graphs.
+#graph_param = {'num_edges' : 1} # For Barbasi Albert random graphs.
 
 # The distribution of file placement in nodes' caches
 # It can be:
 # 'Uniform' for uniform placement.
 # 'Zipf' for zipf distribution. We have to determine the parameter 'gamma' for this distribution in 'place_dist_param'.
-#placement_dist = 'Uniform'
-placement_dist = 'Zipf'
+placement_dist = 'Uniform'
+#placement_dist = 'Zipf'
 
 # The parameters of the placement distribution
 place_dist_param = {'gamma' : 1.0}  # For Zipf distribution where 0 < gamma < infty

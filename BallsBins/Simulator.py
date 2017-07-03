@@ -38,7 +38,7 @@ def simulator_onechoice(params):
     srv_num, req_num, cache_sz, file_num, graph_type, graph_param, placement_dist, place_dist_param = params
 
     print('The "one choice" simulator is starting with parameters:')
-    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {}, \
+    print('# of Servers = {}, # of Reqs = {}, # of Files = {}, Cache Size = {},\
             Net. Topology = {}, Placement Dist. = {}, Plc. Dist. Param. = {}'\
             .format(srv_num, req_num, file_num, cache_sz, graph_type, placement_dist, place_dist_param))
 

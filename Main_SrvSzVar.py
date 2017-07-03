@@ -34,7 +34,7 @@ base_out_filename = 'SrvSzVar'
 pool_size = 2
 
 # Number of runs for computing average values. It is more eficcient that num_of_runs be a multiple of pool_size
-num_of_runs = 10
+num_of_runs = 20
 
 # Number of servers
 #srv_range = [500, 1000, 2000, 5000, 7000, 10000, 20000, 50000, 70000, 100000, 200000, 500000]
@@ -42,13 +42,13 @@ num_of_runs = 10
 #srv_range = [25, 36, 49, 64, 81, 100, 144, 225, 289, 400, 625, 900, 1225, 2025, 3025, 5041]
 srv_range = [64, 81, 100, 144, 225, 289, 400, 625, 900, 1225, 2025, 3025, 5041]
 #srv_range = [225, 324, 625, 900, 1225, 1600, 2025, 3025, 4096, 5041]
-srv_range = [64, 81]
+#srv_range = [64, 81]
 
 # Cache size of each server (expressed in number of files)
 cache_sz = 2
 
 # Total number of files in the system
-file_num = 10
+file_num = 64
 
 # The graph structure of the network
 # It can be:
@@ -57,8 +57,8 @@ file_num = 10
 # 'BarabasiAlbert' for Barabasi Albert random graph. It takes two parameters: # of nodes and # of edges
 #       to attach from a new node to existing nodes
 #graph_type = 'Lattice'
-#graph_type = 'RGG'
-graph_type = 'BarabasiAlbert'
+graph_type = 'RGG'
+#graph_type = 'BarabasiAlbert'
 
 # The parameters of the selected random graph
 # The dictionary graph_param should always be defined. However, for some graphs it may not be used.
